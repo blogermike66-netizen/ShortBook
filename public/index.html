@@ -1,0 +1,1511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>shortbook</title>
+  <style>
+  
+ *{margin:0;padding:0;box-sizing:border-box;font-family:Segoe UI, sans-serif;}
+body{
+  min-height:100vh;
+  background:
+    radial-gradient(circle, rgba(0,0,0,0.05) 1px, transparent 1.2px) 0 0/16px 16px,
+    linear-gradient(160deg,#eef2f7,#dfe7ee 60%,#d8e2ec);
+}
+#cointener{margin-left:340px;}
+  #canvas{
+  border:3px solid;
+  height:450px;
+  width:700px;
+  border-radius:15px;
+  background-color:#eee;
+  background-size:contain;
+  background-position:center;
+  background-repeat:no-repeat;
+  position:relative;
+  overflow:hidden;
+  }
+  input{border-radius:15px;}
+/* boxesN / newBoxN now live INSIDE #canvas, so these coordinates are
+   relative to the 700x450 canvas itself, not the page. This is what
+   keeps the speech bubbles lined up with the photo at every size. */
+#newBox1,#newBox2,#newBox3,#newBox5{position:absolute;top:20px;right:20px;}
+  #boxes1,#boxes2,#boxes3,#boxes5{
+  position:absolute;
+  top:20px;
+  left:20px;
+  }
+  
+ #boxes4{
+  position:absolute;
+  top:0px;
+  left:0px;
+  border-radius:15px;
+  } 
+  
+  #newBox4{
+  position:absolute;
+  top:375px;
+  left:-5px;
+  border-radius:15px;
+  } 
+  
+    #newBox6{
+  background-image:url('comic-speech-bubble-hand-drawn.png');
+  position:absolute;
+  top:380px;
+  left:20px;
+  border-radius:15px;
+  height:100px;
+  background-color:blue;
+  }
+  
+  
+   h1{
+ color:lightgreen;
+ }
+ #player1,#player2{
+ width:170px;
+ height:50px;
+ word-break:break-all;
+ border-radius:5px;
+ font-weight:bold;
+ }
+ #player1Choice1,#player1Choice2,#player1Choice3,
+ #player2Choice1,#player2Choice2,
+ #player2Choice3{height:38px;font-weight:bold; border:1px solid ; border-radius:15px;}
+ #player1Choice1,#player2Choice1{background-color:lightgreen;border-color:green; color:lightblack;}
+  #player1Choice2,#player2Choice2{background-color:lightblue; border-color:blue;color:blue;}
+   #player1Choice3,#player2Choice3{background-color:mistyrose;border-color:pink;color:violet;}
+   #player1Choice4{background-color:lightgreen;border-color:green; color:lightblack;}
+   #player1Choice5{background-color:lightgreen;border-color:green; color:lightblack;}
+    #edit1,#edit2{width:60px;height:30px;border-radius:10px; border:1px solid; background-color:whitesmoke; border-color:whitesmoke;font-weight:bold;}
+	#player2Choice4{background-color:lightgreen;border-color:green; color:lightblack;}
+	#player2Choice5{background-color:lightgreen;border-color:green; color:lightblack;}
+	 #clear1,#clear2{width:60px;height:30px;border-radius:10px; border:1px solid; background-color:darkorange; border-color:whitesmoke;font-weight:bold; color:green;}
+	 .console1{position:absolute;top:170px;left:220px;display:grid;
+	 grid-template-columns:repeat(2,50px);
+	  grid-template-rows:repeat(2,50px);
+	 }
+	 .console2{position:absolute;top:170px;right:180px;display:grid;
+	 grid-template-columns:repeat(2,50px);
+	  grid-template-rows:repeat(2,50px);
+	  }
+	  
+	  #up1,#up2{
+	  background-color:lightgreen;cursor:pointer;}
+	  #down1,#down2{background-color:lightblue;cursor:pointer;}
+	  #left1,#left2{background-color:mistyrose;cursor:pointer;}
+	  #right1,#right2{background-color:whitesmoke;cursor:pointer;}
+	  
+	   	#up1:hover,#up2:hover{background-color:green;}
+	  #down1:hover,#down2:hover{background-color:blue;}
+	  #left1:hover,#left2:hover{background-color:pink;}
+	  #right1:hover,#right2:hover{background-color:white;}
+	  #pushbtn1,#pushbtn2{width:60px;height:30px;border-radius:10px; border:1px solid; background-color:purple; border-color:purple;font-weight:bold; color:lightgreen;}
+	  .pages{position:relative;bottom:auto;margin-top:20px;display:flex;gap:20px;flex-wrap:wrap;}
+	  #previous{width:110px;height:30px;border-radius:10px;border:1px solid;background-color:whitesmoke; border-color:whitesmoke;font-weight:bold;color:purple;}
+	  #del{width:110px;height:30px;border-radius:10px;border:1px solid;background-color:red; border-color:white;font-weight:bold;color:white;}
+	  #next{width:110px;height:30px;border-radius:10px;border:1px solid;background-color:skyblue; border-color:white;font-weight:bold;color:white;}
+	  #review{width:150px;height:30px;border-radius:10px;border:1px solid;background-color:purple; border-color:white;font-weight:bold;color:white;}
+	  #pdfBtn{width:170px;height:30px;border-radius:10px;border:1px solid;background-color:darkgreen; border-color:white;font-weight:bold;color:white;cursor:pointer;}
+	  #pdfBtn:disabled{opacity:0.5;cursor:wait;}
+	  #saveImgBtn{width:150px;height:30px;border-radius:10px;border:1px solid;background-color:teal; border-color:white;font-weight:bold;color:white;cursor:pointer;}
+	  #saveImgBtn:disabled{opacity:0.5;cursor:wait;}
+	  .pointerBtn{background-color:#ffd166;border-color:#e0a800;color:#5a3d00;}
+	  .arrowBtn{background-color:#ff8fa3;border-color:#c9184a;color:white;}
+	  /* small "pointer" bubble: a tiny circle with a shrinking tail, used to
+	     mark/point at a specific character in the picture */
+	  .pointerMark{
+	    position:absolute;
+	    width:26px;height:26px;
+	    border:2px solid var(--ink,#1a1a1a);
+	    border-radius:50%;
+	    background:white;
+	    cursor:grab;
+	    z-index:20;
+	  }
+	  .pointerMark::after{
+	    content:"";
+	    position:absolute;
+	    bottom:-10px; left:2px;
+	    width:0;height:0;
+	    border:6px solid transparent;
+	    border-top-color:white;
+	  }
+	  .pointerMark::before{
+	    content:"";
+	    position:absolute;
+	    bottom:-13px; left:0px;
+	    width:0;height:0;
+	    border:8px solid transparent;
+	    border-top-color:#1a1a1a;
+	  }
+	  /* draggable arrow that can be rotated to point toward a character */
+	  .arrowMark{
+	    position:absolute;
+	    font-size:34px;
+	    line-height:1;
+	    color:#1a1a1a;
+	    cursor:grab;
+	    user-select:none;
+	    z-index:20;
+	  }
+	  .rotateHandle{
+	    position:absolute;
+	    width:22px;height:22px;
+	    border-radius:50%;
+	    background:purple;
+	    color:white;
+	    font-size:12px;
+	    display:flex;align-items:center;justify-content:center;
+	    cursor:pointer;
+	    z-index:21;
+	  }
+	  #pageIndicator{position:absolute;top:-30px;left:0;font-weight:bold;color:#555;}
+	  #voicePanel{display:flex;align-items:center;gap:15px;flex-wrap:wrap;margin-top:15px;padding:10px;background:white;border-radius:10px;border:1px solid #ccc;}
+	  .voicePicker{display:flex;flex-direction:column;font-size:13px;font-weight:bold;color:#333;}
+	  .voicePicker select{margin-top:4px;height:34px;border-radius:8px;border:1px solid #aaa;padding:0 6px;min-width:170px;}
+	  #playStoryBtn{height:38px;border-radius:10px;border:1px solid green;background-color:lightgreen;font-weight:bold;cursor:pointer;padding:0 14px;}
+	  #stopStoryBtn{height:38px;border-radius:10px;border:1px solid darkred;background-color:mistyrose;color:darkred;font-weight:bold;cursor:pointer;padding:0 14px;}
+	  #playStoryBtn:disabled,#stopStoryBtn:disabled{opacity:0.5;cursor:not-allowed;}
+	 footer{position:relative;margin-left:-340px;margin-top:60px;color:white;background-color:black;width:100vw;min-height:100px;padding:20px;}
+	 nav ul,footer ul{
+	 list-style:none;
+	 display:flex;
+	 flex-wrap:wrap;
+	 flex-direction:row;
+	 gap:50px;
+	 
+	 }
+	 ul a{
+color:white;
+font-size:15px;
+	 }
+	 ul a:hover{
+	 color:skyblue;
+	 }
+
+/* ================= PHONE ================= */
+@media (max-width: 760px){
+  body{ padding:20px 14px 40px; }
+  h1{ text-align:center; }
+  body > a[href="premium"]{ display:block; text-align:center; }
+
+  #cointener{
+    margin-left:0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:16px;
+  }
+
+  #canvasWrap{
+    position:sticky;
+    top:10px;
+    z-index:10;
+    width:100%;
+    max-width:420px;
+    aspect-ratio:700 / 450;
+    overflow:hidden;
+    border-radius:15px;
+    box-shadow:0 6px 16px rgba(0,0,0,0.18);
+  }
+
+  #canvas{
+    width:700px;
+    height:450px;
+    transform-origin:top left;
+  }
+
+  #controls{
+    width:100%;
+    max-width:420px;
+    display:flex;
+    flex-direction:column;
+    align-items:stretch;
+    gap:4px;
+    background:white;
+    border-radius:14px;
+    padding:16px;
+    box-shadow:0 3px 10px rgba(0,0,0,0.08);
+  }
+  #controls br{ display:none; }
+  #controls label{
+    display:block;
+    font-size:12px;
+    font-weight:bold;
+    color:#666;
+    text-transform:uppercase;
+    letter-spacing:0.5px;
+    margin-top:10px;
+    text-align:center;
+  }
+  #player1,#player2{
+    width:100%;
+    height:70px;
+  }
+  .pointerBtn,.arrowBtn,#clear1,#clear2,
+  [id^="player1Choice"],[id^="player2Choice"]{
+    width:100%;
+    min-height:42px;
+    margin:3px 0;
+  }
+
+  .console1,.console2{
+    position:static;
+    margin:10px auto 4px;
+  }
+
+  .pages{
+    position:relative;
+    width:100%;
+    max-width:420px;
+    justify-content:center;
+  }
+  .pages button{
+    flex:1 1 45%;
+    min-height:42px;
+  }
+
+  #voicePanel{
+    width:100%;
+    max-width:420px;
+    justify-content:center;
+  }
+  .voicePicker{ width:100%; }
+  .voicePicker select{ width:100%; min-width:0; }
+  #playStoryBtn,#stopStoryBtn{ flex:1 1 45%; }
+
+  footer{
+    position:relative;
+    margin-left:0;
+    margin-top:30px;
+    width:100%;
+    padding:16px 12px;
+  }
+  footer ul{
+    justify-content:center;
+    text-align:center;
+    gap:16px;
+  }
+}
+
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+<h1>Short Book</h1>
+<div id="cointener">
+<div id="canvasWrap">
+<div id ="canvas">
+  <div id="pageIndicator"></div>
+  <section id ="box">
+   <div id ="boxes1"></div>
+   <div id ="boxes2"></div>
+   <div id ="boxes3"></div>
+    <div id ="boxes4"></div>
+	<div id ="boxes5"></div>
+   </section>
+
+   <section id ="nBox">
+     <div id ="newBox1"></div>
+     <div id ="newBox2"></div>
+     <div id ="newBox3"></div>
+	 <div id ="newBox4"></div>
+	  <div id ="newBox5"></div>
+	 </section>
+</div>
+</div><br>
+ 
+  <div id="controls">
+     <label>Character1</label><br>
+  <textarea id="player1"></textarea>
+   <label>SpeechBubble</label>
+  <button id ="player1Choice1">SpeechBubble</button>
+   <label>ThoughtBubble</label>
+  <button id ="player1Choice2">ThoughtBubble</button>
+   <label>NarrativeBubble</label>
+  <button id ="player1Choice3" >NarrativeBubble</button><br>
+   <label>headingBubble</label>
+  <button id ="player1Choice4" >headingBubble</button>
+   <label>Normalspeech</label>
+  <button id ="player1Choice5" >Normalspeech</button>
+   <label>Point at a character</label>
+  <button id ="pointerBtn1" class="pointerBtn">📍 Pointer</button>
+  <button id ="arrowBtn1" class="arrowBtn">➤ Arrow</button>
+  <button id="clear1">Clear</button>
+  <div class ="console1">
+  <button id ="up1">⬆</button>
+  <button id ="left1">⬅</button>
+  <button id ="right1">➡</button> 
+  <button id ="down1">⬇</button>
+  </div>
+<br>
+
+  
+   <label>Character2</label><br>
+   <textarea id="player2"></textarea>
+   <label>SpeechBubble</label>
+  <button id ="player2Choice1" >SpeechBubble</button>
+   <label>ThoughtBubble</label>
+  <button id ="player2Choice2" >ThoughtBubble</button>
+   <label>NarrativeBubble</label>
+  <button id ="player2Choice3" >NarrativeBubble</button>
+  <label>headingBubble</label>
+  <button id ="player2Choice4" >headingBubble</button>
+   <label>Normalspeech</label>
+  <button id ="player2Choice5" >Normalspeech</button>
+   <label>Point at a character</label>
+  <button id ="pointerBtn2" class="pointerBtn">📍 Pointer</button>
+  <button id ="arrowBtn2" class="arrowBtn">➤ Arrow</button>
+  <button  id ="clear2" >Clear</button>
+  <div class ="console2">
+  <button id ="up2">⬆</button>
+  <button id ="left2">⬅</button>
+  <button id ="right2">➡</button> 
+  <button id ="down2">⬇</button>
+  </div>
+
+   
+   <div class ="pages">
+   <button id ="previous">previous</button>
+     <button  id ="del" >delete</button>
+   <button id ="next">NEXT</button>
+   <button id ="review">Panels ▶</button>
+   <button id ="pdfBtn">⬇ Download PDF</button>
+   <button id ="saveImgBtn">🖼 Save Image</button>
+   </div>
+
+   <div id="voicePanel">
+     <div class="voicePicker">
+       <label for="player1Voice">Player 1 voice</label>
+       <select id="player1Voice"></select>
+     </div>
+     <div class="voicePicker">
+       <label for="player2Voice">Player 2 voice</label>
+       <select id="player2Voice"></select>
+     </div>
+     <button id="playStoryBtn">▶ Play Story</button>
+     <button id="stopStoryBtn">⏹ Stop</button>
+   </div>
+
+	 <div id ="typing"></div>
+	 <footer>
+	 <nav>
+	 <ul>
+	 <a href ="page1.html" >Home page</a>
+	 <a href ="comic-strip-studio.html" >draw page</a>
+	 <a href ="https://www.freeartgen.com/" >AI Generator</a>
+	 <a href ="https://www.magnific.com/free-vector/hand-drawn-frailejon-character-illustration_36186900.htm#fromView=search&page=1&position=5&uuid=2607fac7-ecc1-4ae1-967d-cfa363f838b8&track=ais_hybrid&query=funny+cartoon"
+     >cartoon character</a>
+	 <a href ="https://pixabay.com/" >manga Generator</a>
+	 <a href ="" >chibi Generator</a>
+	 <a href ="" >Edit page</a>
+	 <a href ="" >display page</a>
+	 <a href ="panel-view.html" >panel page</a>
+	 <a href ="about.html" >about</a>
+	 <a href ="policy.html" >policy</a>
+	 <a href ="" >Contact</a>
+	 <a href ="" >infomation</a>
+	 </ul>
+	 <nav>
+	 </footer>
+
+  </div>
+  </div>
+  
+  <script>
+ const player1 = document.getElementById("player1");
+ const player2 = document.getElementById("player2");
+  
+  //Creating a speechBubble//       
+const clear1 = document.getElementById("clear1");
+ const clear2 = document.getElementById("clear2");
+ 
+ //this is when we save to make show we dont move again unless edit
+     let speech =["","","","",""
+                           ];
+						   
+                //Charecter 1 removing text//
+                clear1.addEventListener("click",()=>{
+               player1.value ="";
+			   if(selectedBox){ selectedBox.innerHTML = ""; }
+			   });
+			   boxes1.addEventListener("click",()=>{
+			   selectedBox = boxes1;
+			    boxes1.innerHTML = "";
+				boxes1.style.borderColor = "blue";
+				});
+				boxes2.addEventListener("click",()=>{
+				selectedBox = boxes2;
+			    boxes2.innerHTML = "";
+				boxes2.style.borderColor = "blue";
+				});
+				boxes3.addEventListener("click",()=>{
+				selectedBox = boxes3;
+			    boxes3.innerHTML = "";
+				boxes3.style.borderColor = "blue";
+				});
+				boxes4.addEventListener("click",()=>{
+				selectedBox = boxes4;
+			    boxes4.innerHTML = "";
+				boxes4.style.borderColor = "blue";
+				});
+				boxes5.addEventListener("click",()=>{
+				selectedBox = boxes5;
+			    
+				boxes5.style.borderColor = "blue";
+				});
+				
+				   newBox1.addEventListener("click",()=>{
+				    selectedBox = newBox1;
+			   newBox1.innerHTML = "";
+				newBox1.style.borderColor = "blue";
+				});
+				newBox2.addEventListener("click",()=>{
+				selectedBox = newBox2;
+			    newBox2.innerHTML = "";
+				newBox2.style.borderColor = "blue";
+				});
+				newBox3.addEventListener("click",()=>{
+				selectedBox = newBox3;
+			    newBox3.innerHTML = "";
+				newBox3.style.borderColor = "blue";
+				});
+				newBox4.addEventListener("click",()=>{
+				selectedBox = newBox4;
+			    newBox4.innerHTML = "";
+				newBox4.style.borderColor = "blue";
+				});
+				newBox5.addEventListener("click",()=>{
+				selectedBox = newBox5;
+				newBox5.style.borderColor = "blue";
+				});
+				
+                 //Charecter 2 removing text//
+                clear2.addEventListener("click",()=>{
+               player2.value ="";
+               if(selectedBox){ selectedBox.innerHTML = ""; }
+                });
+                //speech documents//
+                const choice1 =document.getElementById("player1Choice1");
+                 const choice2 =document.getElementById("player1Choice2");
+                 const choice3 =document.getElementById("player1Choice3");
+				 const choice4 =document.getElementById("player1Choice4");
+				 const choice5 =document.getElementById("player1Choice5");
+				  const tChoice1 =document.getElementById("player2Choice1");
+                 const tChoice2 =document.getElementById("player2Choice2");
+                 const tChoice3 =document.getElementById("player2Choice3");
+				 const tChoice4 =document.getElementById("player2Choice4");
+				 const tChoice5 =document.getElementById("player2Choice5");
+			 // Only one bubble should be "live" per character at a time - switching
+			 // styles clears the old one, and this also stops Play Story from reading
+			 // leftover/hidden bubbles that were never cleared out.
+			 function clearPlayer1Boxes(){
+			   [boxes1,boxes2,boxes3,boxes4,boxes5].forEach(b=>{ b.innerHTML = ""; });
+			 }
+			 function clearPlayer2Boxes(){
+			   [newBox1,newBox2,newBox3,newBox4,newBox5].forEach(b=>{ b.innerHTML = ""; });
+			 }
+			 //placing the speech Choices Charecter1//////////
+				 choice1.addEventListener("click",()=>{
+				 clearPlayer1Boxes();
+				 const div = document.createElement("div");
+				 div.innerHTML = speech[0];
+				  	document.getElementById("boxes1").appendChild(div);
+					boxes1.style.minHeight = "110px";
+					boxes1.style.minWidth = "110px";
+					boxes1.style.maxWidth = "220px";
+					boxes1.style.padding = "20px";
+					boxes1.style.wordWrap = "break-words";
+				   boxes1.style.border = "2px solid";
+				   boxes1.style.display = "block";
+				   boxes1.style.height = "auto";
+				   boxes1.style.overflow = "visible";
+				    boxes1.style.width = "auto";
+					boxes1.style.background = "white";
+					boxes1.style.wordWrap = "border-box";
+					 boxes1.style.borderRadius = "100px";
+					 boxes1.style.cursor = "pointer";
+					 
+					const div2 = document.createElement("div2");
+					document.getElementById("typing").appendChild(div2);
+					div2.innerHTML =  player1.value;
+					div.appendChild(div2);
+                });
+				 choice2.addEventListener("click",()=>{
+				 clearPlayer1Boxes();
+				 const div = document.createElement("div");
+				 
+				 div.innerHTML = speech[1];
+				 
+				 document.getElementById("boxes2").appendChild(div);
+				 
+				 boxes2.style.minHeight = "70px";
+				 boxes2.style.minWidth = "150px";
+				 boxes2.style.maxWidth = "270px";
+				  boxes2.style.padding = "10px";
+				  boxes2.style.border = "2px solid";
+				   boxes2.style.display = "block";
+				   boxes2.style.height = "auto";
+				    boxes2.style.overflow = "visible";
+					boxes2.style.wordWrap = "break-words";
+				    boxes2.style.width = "auto";
+					boxes2.style.background = "white";
+					 boxes2.style.borderRadius = "50px";
+					 
+					 	const div3 = document.createElement("div3");
+					
+					document.getElementById("typing").appendChild(div3);
+					div3.className="div3";
+					
+					div3.innerHTML =  player1.value;
+					
+					div.appendChild(div3);
+				 });
+				 
+				 choice3.addEventListener("click",()=>{
+				 clearPlayer1Boxes();
+				 const div = document.createElement("div");
+				 div.innerHTML = speech[2];
+				 document.getElementById("boxes3").appendChild(div);
+				 
+				  boxes3.style.minHeight = "70px";
+				 boxes3.style.minWidth = "150px";
+				 boxes3.style.padding = "10px";
+				 boxes3.style.maxWidth = "250px";				 
+				  boxes3.style.border = "2px solid";
+				   boxes3.style.display = "block";
+				   boxes3.style.width = "auto";
+				  boxes3.style.overflow = "visible";
+					boxes3.style.wordWrap = "break-words";
+				    boxes3.style.height = "auto";
+					boxes3.style.background = "white";
+					
+					const div4 = document.createElement("div4");
+					document.getElementById("typing").appendChild(div4);
+					div4.className="div4";
+					div4.innerHTML =  player1.value;
+					div.appendChild(div4);
+				 });
+				 
+				 choice4.addEventListener("click",()=>{
+				 clearPlayer1Boxes();
+				 const div = document.createElement("div");
+				 div.innerHTML = speech[3];
+				 document.getElementById("boxes4").appendChild(div);
+				 
+				  boxes4.style.minHeight = "70px";
+				 boxes4.style.minWidth = "700px";
+				 boxes4.style.padding = "10px";
+				 boxes4.style.maxWidth = "250px";				 
+				  boxes4.style.border = "2px solid";
+				   boxes4.style.display = "block";
+				   boxes4.style.width = "auto";
+				  boxes4.style.overflow = "visible";
+					boxes4.style.wordWrap = "break-words";
+				    boxes4.style.height = "auto";
+					boxes4.style.background = "white";
+					
+					const div8 = document.createElement("div8");
+					document.getElementById("typing").appendChild(div8);
+					div8.className="div8";
+					div8.innerHTML =  player1.value;
+					div.appendChild(div8);
+				 });
+				 
+				 choice5.addEventListener("click",()=>{
+				 clearPlayer1Boxes();
+				 const div = document.createElement("div");
+				 div.innerHTML = speech[4];
+				  	document.getElementById("boxes5").appendChild(div);
+					boxes5.style.minHeight = "110px";
+					boxes5.style.minWidth = "110px";
+					boxes5.style.maxWidth = "220px";
+					boxes5.style.padding = "20px";
+					boxes5.style.wordWrap = "break-words";
+				   boxes5.style.display = "block";
+				   boxes5.style.height = "auto";
+				   boxes5.style.overflow = "visible";
+				    boxes5.style.width = "auto";
+					boxes5.style.fontSize = "20px";
+					boxes5.style.fontWeight = "bold";
+					boxes5.style.color = "white";
+					boxes5.style.wordWrap = "border-box";
+					 boxes5.style.borderRadius = "100px";
+					 boxes5.style.cursor = "pointer";
+					 
+					const div2 = document.createElement("div2");
+					document.getElementById("typing").appendChild(div2);
+					div2.innerHTML =  player1.value;
+					div.appendChild(div2);
+                });
+				 
+				 
+				  //placing the speech Choices Charecter2//
+				 tChoice1.addEventListener("click",()=>{
+				 clearPlayer2Boxes();
+				 const div = document.createElement("div");
+				 
+				 div.innerHTML = speech[0];
+				 
+				 document.getElementById("newBox1").appendChild(div);
+				newBox1.style.minHeight = "110px";
+					newBox1.style.minWidth = "110px";
+					newBox1.style.maxWidth = "220px";
+					newBox1.style.padding = "20px";
+					newBox1.style.wordWrap = "break-words";
+				 newBox1.style.border = "2px solid";
+                  newBox1.style.display = "block";
+				     newBox1.style.height = "auto";
+				   newBox1.style.overflow = "hidden";
+				     newBox1.style.width = "auto";
+					newBox1.style.background = "white";
+					 newBox1.style.borderRadius = "80px";
+			
+					 const div4 = document.createElement("div4");
+					
+					document.getElementById("typing").appendChild(div4);
+					div4.className="div4";
+					
+					div4.innerHTML =  player2.value;
+					
+					div.appendChild(div4);
+				 });
+				 
+				 tChoice2.addEventListener("click",()=>{
+				 clearPlayer2Boxes();
+				 const div = document.createElement("div");
+				 
+				 div.innerHTML = speech[1];
+				 
+				 document.getElementById("newBox2").appendChild(div);
+				  newBox2.style.minHeight = "70px";
+				 newBox2.style.minWidth = "150px";
+				 newBox2.style.maxWidth = "270px";
+				  newBox2.style.display = "block";
+				  newBox2.style.padding = "10px";
+				  newBox2.style.border = "2px solid";
+				   newBox2.style.height = "auto";
+				   newBox2.style.overflow = "visible";
+					newBox2.style.wordWrap = "break-words";
+				    newBox2.style.width = "auto";
+					newBox2.style.background = "white";
+					 newBox2.style.borderRadius = "50px";
+
+					 const div5 = document.createElement("div5");
+					
+					document.getElementById("typing").appendChild(div5);
+					div5.className="div5";
+					
+					div5.innerHTML =  player2.value;
+					
+					div.appendChild(div5);
+				 
+				 });
+				 
+				 tChoice3.addEventListener("click",()=>{
+				 clearPlayer2Boxes();
+				 const div = document.createElement("div");
+				 
+				 div.innerHTML = speech[2];
+				 
+				 document.getElementById("newBox3").appendChild(div);
+				 newBox3.style.minHeight = "70px";
+				 newBox3.style.minWidth = "150px";
+				 newBox3.style.padding = "10px";
+				 newBox3.style.maxWidth = "250px";
+				  newBox3.style.border = "2px solid";
+				 newBox3.style.display = "block";
+				   newBox3.style.height = "auto";
+				  newBox3.style.overflow = "visible";
+					newBox3.style.wordWrap = "break-words";
+				  newBox3.style.width = "auto"
+					newBox3.style.background = "white";
+					
+					 const div6 = document.createElement("div6");
+					
+					document.getElementById("typing").appendChild(div6);
+					div6.className="div6";
+					
+					div6.innerHTML =  player2.value;
+					
+					div.appendChild(div6);
+				 });
+				 
+				  tChoice4.addEventListener("click",()=>{
+				 clearPlayer2Boxes();
+				 const div = document.createElement("div");
+				 
+				 div.innerHTML = speech[3];
+				 
+				 document.getElementById("newBox4").appendChild(div);
+				 newBox4.style.minHeight = "70px";
+				 newBox4.style.minWidth = "700px";
+				 newBox4.style.padding = "10px";
+				 newBox4.style.maxWidth = "250px";
+				  newBox4.style.border = "2px solid";
+				 newBox4.style.display = "block";
+				   newBox4.style.height = "auto";
+				  newBox4.style.overflow = "visible";
+					newBox4.style.wordWrap = "break-words";
+				  newBox4.style.width = "auto";
+					newBox4.style.background = "white";
+					
+					 const div9 = document.createElement("div9");
+					
+					document.getElementById("typing").appendChild(div9);
+					div9.className="div";
+					
+					div9.innerHTML =  player2.value;
+					
+					div.appendChild(div9);
+				 });
+				 	 tChoice5.addEventListener("click",()=>{
+				 clearPlayer2Boxes();
+				 const div = document.createElement("div");
+				 
+				 div.innerHTML = speech[4];
+				 
+				 document.getElementById("newBox5").appendChild(div);
+				newBox5.style.minHeight = "110px";
+					newBox5.style.minWidth = "110px";
+					newBox5.style.maxWidth = "220px";
+					newBox5.style.padding = "20px";
+					newBox5.style.wordWrap = "break-words";
+				    newBox5.style.width = "auto";
+					newBox5.style.fontSize = "20px";
+					newBox5.style.fontWeight = "bold";
+					newBox5.style.color = "white";
+                  newBox5.style.display = "block";
+				     newBox5.style.height = "auto";
+				   newBox5.style.overflow = "hidden";
+				     newBox5.style.width = "auto";
+					
+			
+					 const div4 = document.createElement("div4");
+					
+					document.getElementById("typing").appendChild(div4);
+					div4.className="div4";
+					
+					div4.innerHTML =  player2.value;
+					
+					div.appendChild(div4);
+				 });
+//moving objects using buttons
+const box = document.getElementById("box");
+const nBox = document.getElementById("nBox");
+const up1 = document.getElementById("up1");
+const left1 = document.getElementById("left1");
+const right1 = document.getElementById("right1");
+const down1 = document.getElementById("down1");
+const up2 = document.getElementById("up2");
+const left2 = document.getElementById("left2");
+const right2 = document.getElementById("right2");
+const down2 = document.getElementById("down2");
+//botton1 adjusting movement//
+let x = 20;
+let y = 20;
+	
+   up1.addEventListener("click",()=>{
+   y-=10;
+   if(selectedBox == boxes1){
+   boxes1.style.top = y +"px";
+   }
+   else if(selectedBox == boxes2){
+   boxes2.style.top = y +"px";
+   }
+   else if(selectedBox == boxes3){
+   boxes3.style.top = y +"px";
+   }
+   else if(selectedBox == boxes5){
+   boxes5.style.top = y +"px";
+   }
+   });
+  
+
+down1.addEventListener("click",()=>{
+y+=10;
+ if(selectedBox == boxes1){
+   boxes1.style.top = y +"px";
+   }
+   else if(selectedBox == boxes2){
+    boxes2.style.top = y +"px";
+   }
+   else if(selectedBox == boxes3){
+   boxes3.style.top = y +"px";;
+   }
+   else if(selectedBox == boxes5){
+   boxes5.style.top = y +"px";;
+   }
+   });
+   
+
+right1.addEventListener("click",()=>{
+x+=10;
+ if(selectedBox == boxes1){
+   boxes1.style.left = x +"px";
+   }
+   else if(selectedBox == boxes2){
+    boxes2.style.left = x +"px";
+   }
+   else if(selectedBox == boxes3){
+   boxes3.style.left = x +"px";
+   }
+     else if(selectedBox == boxes5){
+   boxes5.style.left = x +"px";
+   }
+   });
+   
+   left1.addEventListener("click",()=>{
+x-=10;
+ if(selectedBox == boxes1){
+   boxes1.style.left = x +"px";
+   }
+   else if(selectedBox == boxes2){
+    boxes2.style.left = x +"px";
+   }
+   else if(selectedBox == boxes3){
+   boxes3.style.left = x +"px";
+   }
+   else if(selectedBox == boxes5){
+   boxes5.style.left = x +"px";
+   }
+   });
+
+//botton2 adjusting movement//
+
+ up2.addEventListener("click",()=>{
+   y-=10;
+   if(selectedBox == newBox1){
+   newBox1.style.top = y +"px";
+   }
+   else if(selectedBox == newBox2){
+   newBox2.style.top = y +"px";
+   }
+   else if(selectedBox == newBox3){
+   newBox3.style.top = y +"px";
+   }
+    else if(selectedBox == newBox5){
+   newBox5.style.top = y +"px";
+   }
+   });
+
+down2.addEventListener("click",()=>{
+y+=10;
+ if(selectedBox == newBox1){
+   newBox1.style.top = y +"px";
+   }
+   else if(selectedBox == newBox2){
+    newBox2.style.top = y +"px";
+   }
+   else if(selectedBox == newBox3){
+   newBox3.style.top = y +"px";
+   }
+    else if(selectedBox == newBox5){
+   newBox5.style.top = y +"px";
+   }
+   });
+   
+
+right2.addEventListener("click",()=>{
+x-=10;
+ if(selectedBox == newBox1){
+   newBox1.style.right = x +"px";
+   }
+   else if(selectedBox == newBox2){
+    newBox2.style.right= x +"px";
+   }
+   else if(selectedBox == newBox3){
+   newBox3.style.right = x +"px";
+   }
+   else if(selectedBox == newBox5){
+   newBox5.style.right = x +"px";
+   }
+   });
+   
+   left2.addEventListener("click",()=>{
+x+=10;
+ if(selectedBox == newBox1){
+   newBox1.style.right = x +"px";
+   }
+   else if(selectedBox == newBox2){
+    newBox2.style.right = x +"px";
+   }
+   else if(selectedBox == newBox3){
+   newBox3.style.right = x +"px";
+   }
+     else if(selectedBox == newBox5){
+   newBox5.style.right = x +"px";
+   }
+   });
+
+//deleting a speech bubble//
+   const del = document.getElementById("del");
+    let selectedBox =null;
+	
+   del.addEventListener("click",()=>{
+   if(selectedBox == boxes1){
+			    boxes1.style.display = "none";
+				selectedBox = null;
+				player1.value ="";
+				}
+				
+				 else if(selectedBox == boxes2){
+			    boxes2.style.display = "none";
+				selectedBox = null;
+				player1.value ="";
+				}
+				 if(selectedBox == boxes3){
+			    boxes3.style.display = "none";
+				selectedBox = null;
+				player1.value ="";
+				}
+				 if(selectedBox == boxes4){
+			    boxes4.style.display = "none";
+				selectedBox = null;
+				player1.value ="";
+				}
+				 if(selectedBox == boxes5){
+			    boxes5.style.display = "none";
+				selectedBox = null;
+				player1.value ="";
+				}
+				if(selectedBox == newBox1){
+			    newBox1.style.display = "none";
+				selectedBox = null;
+				player2.value ="";
+				}
+				if(selectedBox == newBox2){
+			    newBox2.style.display = "none";
+				selectedBox = null;
+				player2.value ="";
+				}
+				if(selectedBox == newBox3){
+			    newBox3.style.display = "none";
+				selectedBox = null;
+				player2.value ="";
+				}
+                if(selectedBox == newBox4){
+			    newBox4.style.display = "none";
+				selectedBox = null;
+				player2.value ="";
+				}
+                 if(selectedBox == newBox5){
+			    newBox5.style.display = "none";
+				selectedBox = null;
+				player2.value ="";
+				}
+				if(selectedBox && (selectedBox.classList.contains("pointerMark") || selectedBox.classList.contains("arrowMark"))){
+				selectedBox.remove();
+				selectedBox = null;
+				}
+                                        });
+										
+// Same cross-page shim as page1.html/page2.html - keeps data flowing
+// between pages even when opened directly from disk (file://), where
+// plain localStorage is siloed per-file.
+const Store = {
+  _read(){ try{ return JSON.parse(window.name || "{}"); }catch(e){ return {}; } },
+  get(key){
+    const v = this._read()[key];
+    if(v !== undefined) return v;
+    try{ return JSON.parse(localStorage.getItem(key)); }catch(e){ return null; }
+  },
+  set(key, value){
+    const data = this._read();
+    data[key] = value;
+    window.name = JSON.stringify(data);
+    try{ localStorage.setItem(key, JSON.stringify(value)); }catch(e){}
+  }
+};
+
+let store = Store.get("store") || [];
+  console.log(store);
+  const canvas= document.getElementById("canvas");
+  const canvasWrap = document.getElementById("canvasWrap");
+  const pageIndicator = document.getElementById("pageIndicator");
+
+// On phone-width screens, #canvasWrap is shrunk via CSS (aspect-ratio)
+// while #canvas keeps its real 700x450 size - this scales the whole
+// canvas (bubbles, fonts, images, everything) down as ONE proportional
+// unit, instead of stretching the container and leaving fixed-pixel
+// bubble text looking huge. Recomputed on load/resize since it depends
+// on the wrapper's actual rendered width.
+function fitCanvasScale(){
+  if(!canvasWrap) return;
+  const wrapWidth = canvasWrap.clientWidth;
+  if(!wrapWidth){ return; }
+  const scale = wrapWidth / 700;
+  canvas.style.transform = scale < 0.999 ? `scale(${scale})` : "";
+}
+window.addEventListener("resize", fitCanvasScale);
+window.addEventListener("load", fitCanvasScale);
+fitCanvasScale();
+
+
+//moving pages from page 1 to the final page and saving//
+const next = document.getElementById("next");
+const review = document.getElementById("review");
+
+// coming back from the panel picker with "Edit" opens a specific page
+const urlParams = new URLSearchParams(window.location.search);
+const requestedPage = parseInt(urlParams.get("page"), 10);
+let pNum = (!isNaN(requestedPage) && requestedPage >= 0 && requestedPage < store.length) ? requestedPage : 0;
+
+function clearBubble(){
+ boxes1.style.border ="none";
+ boxes2.style.border ="none";
+ boxes3.style.border ="none";
+ boxes4.style.border ="none";
+  boxes5.style.border ="none";
+  boxes1.style.background ="none";
+ boxes2.style.background ="none";
+ boxes3.style.background ="none";
+ boxes4.style.background ="none";
+  boxes5.style.background ="none";
+  newBox1.style.border ="none";
+ newBox2.style.border ="none";
+newBox3.style.border ="none";
+newBox4.style.border ="none";
+newBox5.style.border ="none";
+  newBox1.style.background ="none";
+ newBox2.style.background ="none";
+ newBox3.style.background ="none";
+ newBox4.style.background ="none";
+ newBox5.style.background ="none";
+boxes1.innerHTML ="";
+boxes2.innerHTML ="";
+boxes3.innerHTML ="";
+boxes4.innerHTML ="";
+boxes5.innerHTML ="";
+newBox1.innerHTML ="";
+newBox2.innerHTML ="";
+newBox3.innerHTML =""; 
+newBox4.innerHTML =""; 
+newBox5.innerHTML ="";
+["pointer1","pointer2","arrow1","arrow2"].forEach(id=>{
+  const el = document.getElementById(id);
+  if(el) el.remove();
+});
+}
+
+function boxState(el){
+  return{html:el.innerHTML,  style:el.style.cssText};
+  }
+function savePage(index){
+let panels = Store.get("panels") || [];
+ panels[index] ={
+ page:index,
+ image:store[index],
+ text:player1.value,
+ text2:player2.value,
+  position1:[boxState(boxes1),boxState(boxes2),boxState(boxes3),boxState(boxes4),boxState(boxes5)],
+  position2:[boxState(newBox1),boxState(newBox2),boxState(newBox3),boxState(newBox4),boxState(newBox5)],
+  extras:{
+    pointer1: extraState("pointer1"),
+    pointer2: extraState("pointer2"),
+    arrow1: extraState("arrow1"),
+    arrow2: extraState("arrow2")
+  }
+};
+Store.set("panels", panels);
+}
+
+function restoreBox(el,state){
+el.innerHTML = state? state.html : "";
+el.style.cssText = state ? state.style :"";
+}
+
+function loadPage(index){
+clearBubble();
+canvas.style.backgroundImage = store[index] ? `url("${store[index]}")` : "none";
+pageIndicator.textContent = store.length ? `Page ${index+1} of ${store.length}` : "";
+const panels = Store.get("panels") || [];
+const panel = panels[index];
+player1.value = panel ? panel.text  :"";
+player2.value = panel ? panel.text2 :"";
+if(panel){
+restoreBox(boxes1, panel.position1[0] );
+restoreBox(boxes2, panel.position1[1] );
+restoreBox(boxes3,panel.position1[2] );
+restoreBox(boxes4,panel.position1[3] );
+restoreBox(boxes5,panel.position1[4] );
+restoreBox(newBox1, panel.position2[0] );
+restoreBox(newBox2, panel.position2[1] );
+restoreBox(newBox3, panel.position2[2] );
+restoreBox(newBox4, panel.position2[3] );
+restoreBox(newBox5, panel.position2[4] );
+if(panel.extras){
+  restoreExtra("pointer1", false, panel.extras.pointer1);
+  restoreExtra("pointer2", false, panel.extras.pointer2);
+  restoreExtra("arrow1", true, panel.extras.arrow1);
+  restoreExtra("arrow2", true, panel.extras.arrow2);
+}
+}
+}
+
+next.addEventListener("click",()=>{
+savePage(pNum);
+if(pNum < store.length -1){ pNum++;
+loadPage(pNum);
+}
+});
+
+const previous = document.getElementById("previous");
+previous.addEventListener("click",()=>{
+savePage(pNum);
+if(pNum > 0) pNum--;
+loadPage(pNum);
+});
+
+// Panels: save this page's picture + bubbles, then hand everything
+// over to the panel picker so it can be dropped into a comic panel.
+// (Previously pointed at panels.html, which wasn't working - wired
+// straight to the fixed panel-view.html instead.)
+review.addEventListener("click",()=>{
+savePage(pNum);
+window.location.href = "panel-view.html";
+});
+
+// "Save Image" - screenshots just this page's canvas (picture + bubbles)
+// and downloads it as a PNG, same technique as the PDF export.
+const saveImgBtn = document.getElementById("saveImgBtn");
+saveImgBtn.addEventListener("click", async ()=>{
+  if(!store[pNum]){
+    alert("Add a picture to this page first.");
+    return;
+  }
+  saveImgBtn.disabled = true;
+  saveImgBtn.textContent = "Saving...";
+  savePage(pNum);
+  try{
+    const shot = await html2canvas(canvas, { backgroundColor:"#ffffff", width:700, height:450, scale:2, useCORS:true });
+    const link = document.createElement("a");
+    link.download = `shortbook-page-${pNum+1}.png`;
+    link.href = shot.toDataURL("image/png");
+    link.click();
+  }catch(err){
+    console.error(err);
+    alert("Saving the image failed - check the browser console for details.");
+  }finally{
+    saveImgBtn.disabled = false;
+    saveImgBtn.textContent = "🖼 Save Image";
+  }
+});
+
+// ---------- Pointer & Arrow marks ----------
+// Small draggable marks you can place on top of the picture to point at
+// a specific character. One pointer bubble + one rotatable arrow per
+// character, saved/restored per page alongside everything else.
+const extrasByChar = {
+  1: { pointerBtn:document.getElementById("pointerBtn1"), arrowBtn:document.getElementById("arrowBtn1"), pointerId:"pointer1", arrowId:"arrow1" },
+  2: { pointerBtn:document.getElementById("pointerBtn2"), arrowBtn:document.getElementById("arrowBtn2"), pointerId:"pointer2", arrowId:"arrow2" }
+};
+
+function makeDraggable(el){
+  let dragging = false, offX = 0, offY = 0;
+  el.addEventListener("mousedown",(e)=>{
+    e.stopPropagation();
+    selectedBox = el;
+    dragging = true;
+    el.style.cursor = "grabbing";
+    offX = e.offsetX; offY = e.offsetY;
+  });
+  document.addEventListener("mousemove",(e)=>{
+    if(!dragging) return;
+    const rect = canvas.getBoundingClientRect();
+    // rect reflects the visually-scaled size (shrunk on phone), but
+    // left/top need to be in the canvas's real 700x450 coordinate
+    // space - dividing by the current scale converts back to that.
+    const scale = rect.width / 700;
+    let left = (e.clientX - rect.left) / scale - offX / scale;
+    let top = (e.clientY - rect.top) / scale - offY / scale;
+    left = Math.max(0, Math.min(left, 700 - el.offsetWidth));
+    top = Math.max(0, Math.min(top, 450 - el.offsetHeight));
+    el.style.left = left + "px";
+    el.style.top = top + "px";
+  });
+  document.addEventListener("mouseup",()=>{
+    dragging = false;
+    el.style.cursor = "grab";
+  });
+}
+
+function createPointer(id){
+  const el = document.createElement("div");
+  el.id = id;
+  el.className = "pointerMark";
+  el.style.left = "80px";
+  el.style.top = "80px";
+  canvas.appendChild(el);
+  makeDraggable(el);
+  return el;
+}
+
+function createArrow(id){
+  const el = document.createElement("div");
+  el.id = id;
+  el.className = "arrowMark";
+  el.textContent = "➤";
+  el.style.left = "80px";
+  el.style.top = "80px";
+  el.dataset.rot = "0";
+  canvas.appendChild(el);
+  makeDraggable(el);
+
+  const rotateBtn = document.createElement("div");
+  rotateBtn.className = "rotateHandle";
+  rotateBtn.textContent = "↻";
+  rotateBtn.addEventListener("mousedown",(e)=> e.stopPropagation());
+  rotateBtn.addEventListener("click",(e)=>{
+    e.stopPropagation();
+    const rot = (parseInt(el.dataset.rot,10) + 45) % 360;
+    el.dataset.rot = rot;
+    el.style.transform = `rotate(${rot}deg)`;
+  });
+  el.appendChild(rotateBtn);
+  rotateBtn.style.left = "-11px";
+  rotateBtn.style.top = "-11px";
+  return el;
+}
+
+Object.values(extrasByChar).forEach(({pointerBtn, arrowBtn, pointerId, arrowId})=>{
+  pointerBtn.addEventListener("click",()=>{
+    const existing = document.getElementById(pointerId);
+    if(existing){ selectedBox = existing; return; }
+    selectedBox = createPointer(pointerId);
+  });
+  arrowBtn.addEventListener("click",()=>{
+    const existing = document.getElementById(arrowId);
+    if(existing){ selectedBox = existing; return; }
+    selectedBox = createArrow(arrowId);
+  });
+});
+
+function extraState(id){
+  const el = document.getElementById(id);
+  if(!el) return null;
+  return { left: el.style.left, top: el.style.top, rot: el.dataset.rot || "0" };
+}
+
+function restoreExtra(id, isArrow, state){
+  const existing = document.getElementById(id);
+  if(existing) existing.remove();
+  if(!state) return;
+  const el = isArrow ? createArrow(id) : createPointer(id);
+  el.style.left = state.left;
+  el.style.top = state.top;
+  if(isArrow && state.rot){
+    el.dataset.rot = state.rot;
+    el.style.transform = `rotate(${state.rot}deg)`;
+  }
+}
+
+// "PDF (no panels)" - one PDF page per story page, in order, with the
+// photo and speech bubbles exactly as placed on the canvas. Works by
+// screenshotting the actual #canvas element for each page, so whatever
+// you see in the editor is exactly what lands in the PDF.
+const pdfBtn = document.getElementById("pdfBtn");
+pdfBtn.addEventListener("click", async ()=>{
+  if(store.length === 0){
+    alert("Add at least one picture first.");
+    return;
+  }
+  pdfBtn.disabled = true;
+  pdfBtn.textContent = "Building PDF...";
+  const startedOn = pNum;
+  savePage(pNum); // make sure the page you're currently on is saved too
+
+  try{
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({ orientation:"landscape", unit:"px", format:[700,450] });
+
+    for(let i=0;i<store.length;i++){
+      loadPage(i);
+      // give the browser a moment to actually paint the background image
+      // and restored bubbles before we screenshot the canvas
+      await new Promise(r=>setTimeout(r,120));
+      const shot = await html2canvas(canvas, { backgroundColor:"#ffffff", width:700, height:450, scale:2, useCORS:true });
+      const imgData = shot.toDataURL("image/jpeg",0.92);
+      if(i>0) pdf.addPage([700,450],"landscape");
+      pdf.addImage(imgData,"JPEG",0,0,700,450);
+    }
+
+    pdf.save("shortbook.pdf");
+  }catch(err){
+    console.error(err);
+    alert("PDF export failed - check the browser console for details.");
+  }finally{
+    loadPage(startedOn);
+    pdfBtn.disabled = false;
+    pdfBtn.textContent = "⬇ Download PDF";
+  }
+});
+
+loadPage(pNum);
+
+// ---------------------------------------------------------------
+// TEXT-TO-SPEECH: free built-in browser voices (Web Speech API).
+// ---------------------------------------------------------------
+// No download, no server route, no setup - uses whatever voices are
+// already installed on your device/browser. "Play Story" walks every
+// page in order and, on each page, reads Player 1's bubbles first,
+// then Player 2's, before moving to the next page.
+const player1VoiceSelect = document.getElementById("player1Voice");
+const player2VoiceSelect = document.getElementById("player2Voice");
+const playStoryBtn = document.getElementById("playStoryBtn");
+const stopStoryBtn = document.getElementById("stopStoryBtn");
+stopStoryBtn.disabled = true;
+
+let allVoices = [];
+let storyPlaying = false;
+let stopRequested = false;
+let voicesReady = false;
+
+function fillVoiceSelect(selectEl, voices){
+  selectEl.innerHTML = "";
+  voices.forEach((v)=>{
+    const opt = document.createElement("option");
+    opt.value = v.name;
+    opt.textContent = `${v.name} (${v.lang})`;
+    selectEl.appendChild(opt);
+  });
+}
+
+// Some browsers (Chrome especially) load the voice list asynchronously
+// and don't fire onvoiceschanged reliably, so we build the dropdowns
+// immediately AND keep retrying for a few seconds until voices show up.
+function populateVoiceLists(){
+  allVoices = window.speechSynthesis.getVoices();
+  if(!allVoices.length) return;
+  voicesReady = true;
+
+  // 6 voices for Player 1, a different 6 for Player 2 when the device
+  // has enough installed - falls back to sharing the same list on
+  // devices/browsers that only ship a handful of voices.
+  const player1Voices = allVoices.slice(0, 6);
+  const player2Voices = allVoices.length > 6 ? allVoices.slice(6, 12) : allVoices.slice(0, 6);
+
+  fillVoiceSelect(player1VoiceSelect, player1Voices);
+  fillVoiceSelect(player2VoiceSelect, player2Voices.length ? player2Voices : player1Voices);
+}
+
+window.speechSynthesis.onvoiceschanged = populateVoiceLists;
+populateVoiceLists();
+let voiceRetries = 0;
+const voiceRetryTimer = setInterval(()=>{
+  if(voicesReady || voiceRetries > 20){ clearInterval(voiceRetryTimer); return; }
+  voiceRetries++;
+  populateVoiceLists();
+}, 250);
+
+// Speaks one chunk of text with the chosen voice, resolving when done
+// (or immediately if there's nothing to say).
+function speak(text, voiceName){
+  return new Promise((resolve)=>{
+    if(!text || !text.trim()){ resolve(); return; }
+    const utter = new SpeechSynthesisUtterance(text);
+    const voice = allVoices.find(v => v.name === voiceName);
+    if(voice) utter.voice = voice;
+    utter.onend = resolve;
+    utter.onerror = resolve;
+    window.speechSynthesis.speak(utter);
+  });
+}
+
+// Pulls the actual visible text out of the speech-bubble elements
+// themselves (not the textarea) - whatever is really on screen.
+// Only grabs the MOST RECENT bubble text in each box - if you've
+// placed more than one bubble in the same spot over time, older
+// ones can still be sitting in there too; this ignores those and
+// only reads the last (current) one, so it doesn't read stale text.
+function collectBubbleTexts(ids){
+  return ids
+    .map(id => document.getElementById(id))
+    .filter(el => el && el.lastElementChild)
+    .map(el => (el.lastElementChild.textContent || "").trim())
+    .filter(t => t.length > 0);
+}
+
+function setEditingLocked(locked){
+  player1.readOnly = locked;
+  player2.readOnly = locked;
+  [next, previous, del].forEach(btn => { if(btn) btn.disabled = locked; });
+}
+
+async function playStory(){
+  if(storyPlaying) return;
+  if(store.length === 0){
+    alert("Add at least one page first - there's nothing to play yet.");
+    return;
+  }
+
+  window.speechSynthesis.cancel(); // clear out anything stuck from before
+  storyPlaying = true;
+  stopRequested = false;
+  playStoryBtn.disabled = true;
+  stopStoryBtn.disabled = false;
+  setEditingLocked(true); // story auto-flips pages while playing, so typing/navigating is paused until it's done or stopped
+
+  // Chrome has a long-standing bug where speech silently pauses itself
+  // after ~15 seconds. Nudging resume() periodically works around it
+  // and is harmless on browsers that don't have the bug.
+  const keepAlive = setInterval(()=>{
+    if(window.speechSynthesis.speaking) window.speechSynthesis.resume();
+  }, 4000);
+
+  const startedOn = pNum;
+  savePage(pNum); // make sure the page you're currently on is saved first
+  let spokeAnything = false;
+
+  try{
+    for(let i=0; i<store.length; i++){
+      if(stopRequested) break;
+      loadPage(i); // restores this page's actual bubbles onto the canvas
+
+      // Player 1's bubbles, in order (boxes1 -> boxes5), read from the
+      // bubbles themselves - so multiple bubbles with different text
+      // all get read, not just whatever's left in the textarea.
+      const player1Texts = collectBubbleTexts(["boxes1","boxes2","boxes3","boxes4","boxes5"]);
+      for(const text of player1Texts){
+        if(stopRequested) break;
+        spokeAnything = true;
+        await speak(text, player1VoiceSelect.value);
+      }
+
+      if(stopRequested) break;
+
+      // Then Player 2's bubbles, same idea (newBox1 -> newBox5).
+      const player2Texts = collectBubbleTexts(["newBox1","newBox2","newBox3","newBox4","newBox5"]);
+      for(const text of player2Texts){
+        if(stopRequested) break;
+        spokeAnything = true;
+        await speak(text, player2VoiceSelect.value);
+      }
+    }
+  } finally {
+    clearInterval(keepAlive);
+    loadPage(startedOn);
+    storyPlaying = false;
+    playStoryBtn.disabled = false;
+    stopStoryBtn.disabled = true;
+    setEditingLocked(false);
+  }
+
+  if(!spokeAnything && !stopRequested){
+    alert("None of your pages have any speech bubbles on screen yet, so there's nothing to read aloud.");
+  }
+}
+
+playStoryBtn.addEventListener("click", playStory);
+stopStoryBtn.addEventListener("click", ()=>{
+  stopRequested = true;
+  window.speechSynthesis.cancel();
+});
+  </script>
+</body>
+</html>

@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>page1</title>
+  <style>
+
+ *{margin:0;padding:0;box-sizing:border-box;font-family:Segoe UI, sans-serif;}
+body{
+  min-height:100vh;
+  background:
+    radial-gradient(circle, rgba(0,0,0,0.05) 1px, transparent 1.2px) 0 0/16px 16px,
+    linear-gradient(160deg,#eef2f7,#dfe7ee 60%,#d8e2ec);
+}
+#cointener{margin-left:340px;padding-bottom:60px;}
+ #promp{
+ border:2px solid;
+ background-color:white;
+ height:90px;
+ width:700px;
+ border-radius:15px
+ }
+
+  #canvas{border:3px solid;height:450px;width:700px;border-radius:15px;background-color:white;}
+
+/* squares now render dynamically, but keep the original look */
+.square{
+border:2px solid #2A6FDB;
+height:130px;
+width:130px;
+background-color:white;
+background-size:cover;
+background-position:center;
+background-repeat:no-repeat;
+border-radius:8px;
+position:relative;
+cursor:pointer;
+box-shadow:0 3px 8px rgba(0,0,0,0.12);
+transition:transform .1s ease;
+}
+.square:hover{
+transform:translateY(-2px);
+box-shadow:0 5px 12px rgba(0,0,0,0.18);
+}
+.square .remove{
+position:absolute;
+top:-8px;
+right:-8px;
+width:22px;
+height:22px;
+border-radius:50%;
+background:red;
+color:white;
+border:2px solid white;
+font-weight:bold;
+font-size:12px;
+line-height:16px;
+cursor:pointer;
+display:none;
+}
+.square:hover .remove{display:block;}
+
+#box{
+position:absolute;
+top:200px;
+right:210px;
+display:grid;
+gap:23px;
+grid-template-columns:repeat(6,110px);
+grid-auto-rows:110px;
+max-width:770px;
+}
+#next{
+position:absolute;
+ width:280px;
+ height:50px;
+ border-radius:10px;
+ border:1px solid;
+ background-color:blue;
+ border-color:green;
+ font-weight:bold;
+ color:white;
+top:490px;
+right:500px;
+font-size:28px;
+text-align:center;
+line-height:50px;
+text-decoration:none;
+display:inline-block;
+ }
+ #next:hover{
+ border:1px solid;
+ background-color:green;
+ border-color:yellow;
+ }
+ h1{
+ color:lightgreen;
+ }
+#file{
+height:44px;
+padding:8px 10px;
+color:#2A6FDB;
+background-color:white;
+border:2px solid #2A6FDB;
+border-radius:10px;
+font-weight:bold;
+cursor:pointer;
+position:absolute;
+top:300px;
+left:365px;
+}
+#count{
+color:green;
+position:absolute;
+top:200px;
+left:365px;
+font-size:25px;
+font-weight:bold;
+}
+#add1,#add2,#add3,#add4,#add5{
+display:inline-block;
+padding:10px 18px;
+background-color:#2A6FDB;
+color:white;
+border:2px solid #1b4fa0;
+border-radius:10px;
+font-weight:bold;
+text-decoration:none;
+text-align:center;
+box-shadow:0 3px 8px rgba(0,0,0,0.12);
+transition:transform .1s ease, background-color .15s ease;
+}
+#add1:hover,#add2:hover,#add3:hover,#add4:hover,#add5:hover{
+background-color:#1b4fa0;
+transform:translateY(-2px);
+}
+#add1{
+position:absolute;
+top:300px;
+left:635px;
+}
+#add2{
+position:absolute;
+top:300px;
+left:905px;
+}
+#add3{
+position:absolute;
+top:430px;
+left:365px;
+}
+#add4{
+position:absolute;
+top:430px;
+left:635px;
+}
+#add5{
+position:absolute;
+top:430px;
+left:905px;
+}
+ footer{position:relative;left:0;margin-top:60px;color:white;background-color:black;width:100%;min-height:100px;padding:20px 0;}
+	 nav ul,footer ul{
+	 list-style:none;
+	 display:flex;
+	 flex-wrap:wrap;
+	 flex-direction:row;
+	 gap:20px;
+	 
+	 }
+	 ul a{
+color:white;
+font-size:15px;
+	 }
+	 ul a:hover{
+	 color:skyblue;
+	 }
+/* ================= PHONE ================= */
+@media (max-width: 760px) {
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    min-width: 0;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 16px 40px;
+    gap: 14px;
+  }
+
+  h1 { text-align: center; }
+  body > a[href="premium"] { align-self: center; }
+
+  #cointener {
+    margin-left: 0;
+    padding-bottom: 0;
+    width: 100%;
+    max-width: 420px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+  }
+
+  #promp {
+    position: static;
+    width: 100%;
+    height: 70px;
+  }
+
+  #canvas {
+    position: static;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 700 / 450;
+  }
+
+  #box {
+    position: static;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    width: 100%;
+    max-width: none;
+  }
+
+  .square {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1 / 1;
+  }
+
+  #next {
+    position: static;
+    width: 100%;
+    max-width: 420px;
+  }
+
+  #count {
+    position: static;
+    width: 100%;
+    max-width: 420px;
+    text-align: center;
+  }
+
+  #file {
+    position: static;
+    width: 100%;
+    max-width: 420px;
+  }
+
+  #add1, #add2, #add3, #add4, #add5 {
+    position: static;
+    display: block;
+    width: 100%;
+    max-width: 420px;
+    text-align: center;
+    background: #2A6FDB;
+    color: white;
+    padding: 12px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: bold;
+  }
+
+  footer {
+    position: static;
+    width: 100%;
+    height: auto;
+    margin-top: 20px;
+    padding: 16px 12px;
+  }
+
+  footer ul {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    text-align: center;
+    gap: 14px;
+  }
+}
+
+
+</style>
+</head>
+<body>
+<h1>Short Book</h1>
+<a href ="premium">premium</a>
+<div id="cointener">
+<div id="promp" placeholder ="Write a promp.write your story" ></div><br>
+<div id ="canvas"></div>
+  <section id ="box">
+   </section>
+   <button id ="next">NEXT</button>
+   </div>
+   <div id ="cointener">
+   <div id ="count">0</div>
+   <input type ="file" id ="file" accept="image/*" multiple></input>
+   </div>
+  
+   <a href ="https://www.freeartgen.com/" id ="add1">AI character</a>
+  <a href ="https://pixabay.com/" id ="add2">Manga character</a>
+  <a href ="https://www.magnific.com/free-vector/hand-drawn-frailejon-character-illustration_36186900.htm#fromView=search&page=1&position=5&uuid=2607fac7-ecc1-4ae1-967d-cfa363f838b8&track=ais_hybrid&query=funny+cartoon"
+  <a href="" id ="add3">cartoon character</a>
+  <a href="comic-strip-studio.html" id ="add4">Draw Cartoon</a>
+  <a href ="" id ="add5">chibi</a>
+  
+   <footer>
+	 <nav>
+	 <ul>
+	 <a href ="page1.html" >Home page</a>
+	 <a href ="comic-strip-studio.html" >draw page</a>
+	 <a href ="https://www.freeartgen.com/" >AI Generator</a>
+	 <a href ="https://www.magnific.com/free-vector/hand-drawn-frailejon-character-illustration_36186900.htm#fromView=search&page=1&position=5&uuid=2607fac7-ecc1-4ae1-967d-cfa363f838b8&track=ais_hybrid&query=funny+cartoon"
+     >cartoon character</a>
+	 <a href ="https://pixabay.com/" >manga Generator</a>
+	 <a href ="" >chibi Generator</a>
+	 <a href ="" >Edit page</a>
+	 <a href ="" >display page</a>
+	 <a href ="panels.html" >panel page</a>
+	 <a href ="panels-view.html" >panel page</a>
+	 <a href ="about.html" >about</a>
+	 <a href ="policy.html" >policy</a>
+	 <a href ="" >Contact</a>
+	 <a href ="" >infomation</a>
+	 </ul>
+	 </nav>
+	 </footer>
+	 <div id ="put"></div>
+
+
+  <script>
+  const fileInput = document.getElementById("file");
+  const box = document.getElementById("box");
+  const count = document.getElementById("count");
+  const next = document.getElementById("next");
+
+  // Shared storage that survives navigation to another page even when these
+  // files are opened directly from disk (file://), where plain localStorage
+  // is siloed per-file and won't carry data from page1 to page2.
+  const Store = {
+    _read(){ try{ return JSON.parse(window.name || "{}"); }catch(e){ return {}; } },
+    get(key){
+      const v = this._read()[key];
+      if(v !== undefined) return v;
+      try{ return JSON.parse(localStorage.getItem(key)); }catch(e){ return null; }
+    },
+    set(key, value){
+      const data = this._read();
+      data[key] = value;
+      window.name = JSON.stringify(data);
+      try{ localStorage.setItem(key, JSON.stringify(value)); }catch(e){}
+    }
+  };
+
+  // keep any images already saved (e.g. coming back from page2)
+  let store = Store.get("store") || [];
+
+  function renderSquares(){
+    box.innerHTML = "";
+    store.forEach((dataUrl, i)=>{
+      const sq = document.createElement("div");
+      sq.className = "square";
+      sq.style.backgroundImage = `url("${dataUrl}")`;
+
+      const remove = document.createElement("div");
+      remove.className = "remove";
+      remove.textContent = "x";
+      remove.title = "Remove this image";
+      remove.addEventListener("click",(e)=>{
+        e.stopPropagation();
+        store.splice(i,1);
+        renderSquares();
+      });
+
+      sq.appendChild(remove);
+      box.appendChild(sq);
+    });
+    count.textContent = `${store.length}`;
+  }
+
+  function addFiles(fileList){
+    const files = Array.from(fileList);
+    let remaining = files.length;
+    if(!remaining) return;
+    files.forEach(file=>{
+      const reader = new FileReader();
+      reader.onload = () => {
+        store.push(reader.result); // base64 string
+        remaining--;
+        if(remaining === 0) renderSquares();
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  fileInput.addEventListener("change",(event)=>{
+    addFiles(event.target.files);
+    fileInput.value = ""; // allow re-selecting the same file later
+  });
+
+  next.addEventListener("click",()=>{
+    if(store.length === 0){
+      alert("Add at least one picture first.");
+      return;
+    }
+    Store.set("store", store);
+    window.location.href = "page2.html";
+  });
+
+
+  
+  </script>
+</body>
+</html>

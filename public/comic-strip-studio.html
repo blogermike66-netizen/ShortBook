@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel &amp; Ink — Character Drawing Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#EDEAE0;
+    --ink:#1A1A1A;
+    --ink-soft:#3A3A3A;
+    --red:#E4572E;
+    --blue:#2A6FDB;
+    --yellow:#FFC93C;
+    --green:#4C9F70;
+    --panel-bg:#FFFFFF;
+    font-size:16px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(circle, rgba(26,26,26,0.07) 1px, transparent 1.2px) 0 0/14px 14px,
+      var(--paper);
+    color:var(--ink);
+    font-family:'Space Grotesk',sans-serif;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+  }
+  header{
+    padding:16px 22px 10px;
+    display:flex;
+    align-items:flex-end;
+    gap:18px;
+    flex-wrap:wrap;
+    border-bottom:4px solid var(--ink);
+    background:var(--paper);
+  }
+  h1{
+    font-family:'Bangers',cursive;
+    font-size:clamp(26px,4.5vw,40px);
+    letter-spacing:1.5px;
+    margin:0;
+    color:var(--ink);
+    transform:skewX(-3deg);
+    text-shadow:2px 2px 0 var(--yellow);
+    line-height:1;
+  }
+  header .tag{
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:2px;
+    color:var(--ink-soft);
+    margin-top:4px;
+  }
+  .title-input-wrap{
+    margin-left:auto;
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+    min-width:200px;
+  }
+  .title-input-wrap label{
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:1.5px;
+    color:var(--ink-soft);
+  }
+  #stripTitle{
+    font-family:'Bangers',cursive;
+    font-size:19px;
+    letter-spacing:1px;
+    padding:6px 10px;
+    border:3px solid var(--ink);
+    background:#fff;
+    color:var(--ink);
+    border-radius:4px;
+    width:230px;
+    max-width:60vw;
+  }
+  #stripTitle:focus{outline:3px solid var(--blue);outline-offset:1px;}
+
+  .app{
+    flex:1;
+    display:flex;
+    gap:0;
+    min-height:0;
+  }
+  aside{
+    width:236px;
+    flex:0 0 236px;
+    background:var(--ink);
+    color:var(--paper);
+    padding:16px 14px 24px;
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+    overflow-y:auto;
+  }
+  .group{display:flex;flex-direction:column;gap:8px;}
+  .group h2{
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:2px;
+    color:var(--yellow);
+    margin:0 0 2px;
+    border-bottom:1px solid rgba(255,255,255,0.15);
+    padding-bottom:6px;
+  }
+  .tool-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+  .tool-grid.cols-3{grid-template-columns:1fr 1fr 1fr;}
+  .tool-btn{
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:600;
+    font-size:12px;
+    background:#2B2B2B;
+    color:var(--paper);
+    border:2px solid #444;
+    border-radius:6px;
+    padding:8px 4px;
+    cursor:pointer;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:4px;
+    transition:transform .08s ease, background .15s ease, border-color .15s ease;
+  }
+  .tool-btn svg{width:20px;height:20px;stroke:var(--paper);fill:none;}
+  .tool-btn:hover{background:#3a3a3a;}
+  .tool-btn:active{transform:scale(0.95);}
+  .tool-btn.active{background:var(--red);border-color:#fff;color:#fff;}
+  .tool-btn.active svg{stroke:#fff;}
+  .tool-btn.wide{grid-column:1 / -1;flex-direction:row;justify-content:center;}
+
+  .swatches{display:flex;flex-wrap:wrap;gap:7px;align-items:center;}
+  .swatch{width:26px;height:26px;border-radius:50%;border:2px solid rgba(255,255,255,0.4);cursor:pointer;padding:0;}
+  .swatch.active{border-color:var(--yellow);box-shadow:0 0 0 2px var(--yellow);}
+  #customColor{width:26px;height:26px;border:none;padding:0;border-radius:50%;overflow:hidden;cursor:pointer;background:none;}
+
+  .size-row{display:flex;align-items:center;gap:10px;}
+  #brushSize{flex:1;accent-color:var(--red);}
+  #sizePreview{width:34px;height:34px;flex:0 0 34px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.3);}
+  #sizeDot{border-radius:50%;background:var(--ink);}
+
+  .action-row{display:flex;gap:6px;}
+  .action-row .tool-btn{flex:1;}
+
+  .fmt-row{display:flex;gap:6px;align-items:center;}
+  select.fmt-select{
+    background:#2B2B2B;color:var(--paper);border:2px solid #444;border-radius:6px;
+    padding:8px 6px;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:12.5px;flex:1;
+  }
+
+  #downloadBtn{background:var(--yellow);color:var(--ink);border:2px solid var(--ink);}
+  #downloadBtn:hover{background:#ffd766;}
+  #downloadBtn svg{stroke:var(--ink);}
+
+  main{
+    flex:1;
+    padding:22px;
+    display:flex;
+    align-items:flex-start;
+    justify-content:center;
+    overflow:auto;
+  }
+  #stripBoard{
+    display:grid;
+    gap:24px;
+    width:100%;
+    max-width:1600px;
+  }
+  .panel{
+    position:relative;
+    background:var(--panel-bg);
+    border:5px solid var(--ink);
+    box-shadow:0 0 0 3px var(--paper), 0 0 0 6px var(--ink);
+    border-radius:3px;
+    aspect-ratio:1/1;
+    min-width:260px;
+    overflow:hidden;
+    touch-action:none;
+  }
+  .panel canvas{width:100%;height:100%;display:block;cursor:crosshair;}
+  .panel .panel-num{
+    position:absolute;top:8px;left:8px;width:26px;height:26px;
+    background:var(--ink);color:var(--paper);
+    font-family:'Bangers',cursive;font-size:15px;
+    display:flex;align-items:center;justify-content:center;
+    border-radius:50%;pointer-events:none;z-index:5;
+    box-shadow:0 0 0 2px var(--yellow);
+  }
+
+  footer{
+    text-align:center;
+    font-size:11px;
+    letter-spacing:1px;
+    color:var(--ink-soft);
+    padding:8px 0 14px;
+    text-transform:uppercase;
+  }
+
+  .modal-overlay{
+    position:fixed; inset:0;
+    background:rgba(26,26,26,0.72);
+    display:flex; align-items:center; justify-content:center;
+    z-index:100;
+    padding:20px;
+  }
+  .modal-box{
+    background:var(--paper);
+    border:5px solid var(--ink);
+    box-shadow:0 0 0 3px var(--paper), 0 0 0 6px var(--ink), 10px 10px 0 rgba(0,0,0,0.25);
+    border-radius:4px;
+    padding:24px 26px 20px;
+    max-width:420px;
+    width:100%;
+  }
+  .modal-box h3{
+    font-family:'Bangers',cursive;
+    font-size:24px;
+    letter-spacing:0.5px;
+    margin:0 0 16px;
+    color:var(--ink);
+    text-align:center;
+  }
+  .modal-panel-grid{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:10px;
+    margin-bottom:16px;
+  }
+  .modal-panel-btn{
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:700;
+    font-size:14px;
+    background:var(--ink);
+    color:var(--paper);
+    border:2px solid var(--ink);
+    border-radius:6px;
+    padding:14px 6px;
+    cursor:pointer;
+    transition:transform .08s ease, background .15s ease;
+  }
+  .modal-panel-btn:hover{background:var(--red); border-color:var(--red);}
+  .modal-panel-btn:active{transform:scale(0.95);}
+  .modal-cancel-btn{
+    width:100%;
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:600;
+    font-size:13px;
+    background:transparent;
+    color:var(--ink-soft);
+    border:2px solid var(--ink-soft);
+    border-radius:6px;
+    padding:9px;
+    cursor:pointer;
+  }
+  .modal-cancel-btn:hover{background:rgba(26,26,26,0.06);}
+
+  .result-box{max-width:520px;text-align:center;}
+  .result-hint{
+    font-size:12.5px;
+    color:var(--ink-soft);
+    margin:0 0 14px;
+    line-height:1.5;
+  }
+  .result-img{
+    max-width:100%;
+    max-height:50vh;
+    border:3px solid var(--ink);
+    border-radius:4px;
+    margin-bottom:14px;
+    background:#fff;
+  }
+  .result-download{
+    display:block;
+    text-decoration:none;
+    text-align:center;
+    margin-bottom:10px;
+  }
+
+  @media (max-width:820px){
+    .app{flex-direction:column;}
+    aside{width:100%;flex:0 0 auto;flex-direction:row;flex-wrap:nowrap;overflow-x:auto;padding:12px;gap:16px;}
+    .group{min-width:160px;flex:0 0 auto;}
+    header{align-items:flex-start;}
+    .title-input-wrap{margin-left:0;width:100%;}
+    #stripTitle{width:100%;max-width:100%;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Panel &amp; Ink</h1>
+    <div class="tag">Draw your own characters</div>
+  </div>
+  <div class="title-input-wrap">
+    <label for="stripTitle">Strip title (shown on export)</label>
+    <input id="stripTitle" type="text" placeholder="MY AWESOME STRIP" maxlength="40">
+  </div>
+</header>
+
+<div class="app">
+  <aside>
+    <div class="group">
+      <h2>Draw</h2>
+      <div class="tool-grid">
+        <button class="tool-btn active" data-tool="brush" title="Brush">
+          <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21l1.5-5L17 3.5a2.1 2.1 0 0 1 3 3L7.5 19 3 21z"/></svg>
+          Brush
+        </button>
+        <button class="tool-btn" data-tool="eraser" title="Eraser">
+          <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20H8l-6-6a2 2 0 0 1 0-2.8L13.5 2 22 10.5 13 20"/></svg>
+          Eraser
+        </button>
+        <button class="tool-btn" data-tool="line" title="Straight line">
+          <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round"><path d="M4 20L20 4"/></svg>
+          Line
+        </button>
+        <button class="tool-btn" data-tool="rect" title="Rectangle">
+          <svg viewBox="0 0 24 24" stroke-width="2"><rect x="4" y="6" width="16" height="12" rx="1"/></svg>
+          Box
+        </button>
+        <button class="tool-btn wide" data-tool="circle" title="Circle">
+          <svg viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="12" r="8"/></svg>
+          Circle
+        </button>
+      </div>
+    </div>
+
+    <div class="group">
+      <h2>Heads — tap to place, then draw</h2>
+      <div class="tool-grid cols-3">
+        <button class="tool-btn" data-tool="head-round" title="Round head">
+          <svg viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="12" r="8"/></svg>
+        </button>
+        <button class="tool-btn" data-tool="head-oval" title="Oval head">
+          <svg viewBox="0 0 24 24" stroke-width="2"><ellipse cx="12" cy="12" rx="6" ry="9"/></svg>
+        </button>
+        <button class="tool-btn" data-tool="head-ears" title="Ears head">
+          <svg viewBox="0 0 24 24" stroke-width="2" stroke-linejoin="round"><circle cx="12" cy="13" r="7"/><path d="M6 9l-2-5 5 3M18 9l2-5-5 3"/></svg>
+        </button>
+        <button class="tool-btn" data-tool="head-spiky" title="Spiky rosette head">
+          <svg viewBox="0 0 24 24" stroke-width="1.6" stroke-linejoin="round"><path d="M12 2l1.4 4.4L17 3l-.6 4.6L20 5l-2 4.4L22 10l-4 2 4 2-4.4.6 2 4.4-4-2.6.6 4.6-3.4-3.6L12 22l-1.4-4.4-3.4 3.6.6-4.6-4 2.6 2-4.4L2 14l4-2-4-2 4.4-.6-2-4.4 4 2.6L7.6 3l3.6 3.6z"/></svg>
+        </button>
+        <button class="tool-btn" data-tool="head-cloud" title="Cloud head">
+          <svg viewBox="0 0 24 24" stroke-width="2" stroke-linejoin="round"><path d="M6 16a3.5 3.5 0 0 1 .3-7 4.5 4.5 0 0 1 8.6-1.6A3.8 3.8 0 0 1 20 11a3.5 3.5 0 0 1-1 5H6z"/></svg>
+        </button>
+        <button class="tool-btn" data-tool="head-square" title="Square head">
+          <svg viewBox="0 0 24 24" stroke-width="2"><rect x="5" y="5" width="14" height="14" rx="4"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="group">
+      <h2>Bodies — tap to place, then draw</h2>
+      <div class="tool-grid cols-3">
+        <button class="tool-btn" data-tool="body-round" title="Round body">
+          <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round"><ellipse cx="12" cy="12" rx="7" ry="8"/><path d="M8 19v2M16 19v2"/></svg>
+        </button>
+        <button class="tool-btn" data-tool="body-tall" title="Tall body">
+          <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round"><rect x="7" y="5" width="10" height="13" rx="4"/><path d="M9 18v3M15 18v3"/></svg>
+        </button>
+        <button class="tool-btn" data-tool="body-star" title="Star body">
+          <svg viewBox="0 0 24 24" stroke-width="1.6" stroke-linejoin="round"><path d="M12 3l2.2 5.6L20 9l-4.4 3.8L17 19l-5-3.2L7 19l1.4-6.2L4 9l5.8-.4z"/></svg>
+        </button>
+        <button class="tool-btn" data-tool="body-cone" title="Cone / dress body">
+          <svg viewBox="0 0 24 24" stroke-width="2" stroke-linejoin="round"><path d="M12 4l7 15H5z"/></svg>
+        </button>
+        <button class="tool-btn" data-tool="body-blob" title="Leafy blob body">
+          <svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linejoin="round"><path d="M12 4c3 0 6 2 6 6 0 2-1 3 0 5 1 2-1 4-3 3-1.5-.7-2.4-.2-4 0-2 .3-4-1.5-3-3.5 1-2-1-3-1-5 0-3.5 2.5-5.5 5-5.5z"/></svg>
+        </button>
+        <button class="tool-btn" data-tool="body-cloud" title="Fluffy body">
+          <svg viewBox="0 0 24 24" stroke-width="2" stroke-linejoin="round"><path d="M6 18a3.5 3.5 0 0 1 .3-7 4.5 4.5 0 0 1 8.6-1.6A3.8 3.8 0 0 1 20 13a3.5 3.5 0 0 1-1 5H6z"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="group">
+      <h2>Color</h2>
+      <div class="swatches" id="swatches">
+        <button class="swatch active" style="background:#1A1A1A" data-color="#1A1A1A"></button>
+        <button class="swatch" style="background:#FFFFFF" data-color="#FFFFFF"></button>
+        <button class="swatch" style="background:#E4572E" data-color="#E4572E"></button>
+        <button class="swatch" style="background:#2A6FDB" data-color="#2A6FDB"></button>
+        <button class="swatch" style="background:#FFC93C" data-color="#FFC93C"></button>
+        <button class="swatch" style="background:#4C9F70" data-color="#4C9F70"></button>
+        <button class="swatch" style="background:#8B5CF6" data-color="#8B5CF6"></button>
+        <input type="color" id="customColor" value="#1A1A1A" title="Custom color">
+      </div>
+    </div>
+
+    <div class="group">
+      <h2>Skin tones</h2>
+      <div class="swatches" id="skinSwatches">
+        <button class="swatch" style="background:#FDE0C4" data-color="#FDE0C4" title="Fair"></button>
+        <button class="swatch" style="background:#F1C27D" data-color="#F1C27D" title="Light"></button>
+        <button class="swatch" style="background:#D9A066" data-color="#D9A066" title="Tan"></button>
+        <button class="swatch" style="background:#C68642" data-color="#C68642" title="Medium"></button>
+        <button class="swatch" style="background:#8D5524" data-color="#8D5524" title="Brown"></button>
+        <button class="swatch" style="background:#5C3A21" data-color="#5C3A21" title="Deep brown"></button>
+        <button class="swatch" style="background:#3B2417" data-color="#3B2417" title="Dark"></button>
+      </div>
+    </div>
+
+    <div class="group">
+      <h2>Brush size</h2>
+      <div class="size-row">
+        <input type="range" id="brushSize" min="1" max="40" value="5">
+        <div id="sizePreview"><div id="sizeDot"></div></div>
+      </div>
+    </div>
+
+    <div class="group">
+      <h2>Panels</h2>
+      <div class="action-row">
+        <button class="tool-btn" id="addPanelBtn" title="Add another panel">
+          <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+          Add panel
+        </button>
+        <button class="tool-btn" id="removePanelBtn" title="Remove last panel">
+          <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round"><path d="M5 12h14"/></svg>
+          Remove
+        </button>
+      </div>
+    </div>
+
+    <div class="group">
+      <h2>Actions</h2>
+      <div class="action-row">
+        <button class="tool-btn" id="undoBtn" title="Undo">
+          <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5M4 9h10a6 6 0 0 1 0 12h-2"/></svg>
+          Undo
+        </button>
+        <button class="tool-btn" id="redoBtn" title="Redo">
+          <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14l5-5-5-5M20 9H10a6 6 0 0 0 0 12h2"/></svg>
+          Redo
+        </button>
+      </div>
+      <div class="action-row">
+        <button class="tool-btn wide" id="clearPanelBtn" title="Clear current panel">
+          <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg>
+          Clear panel
+        </button>
+      </div>
+    </div>
+
+    <div class="group">
+      <h2>Save</h2>
+      <div class="fmt-row">
+        <select class="fmt-select" id="fmtSelect">
+          <option value="png">PNG (best quality)</option>
+          <option value="jpeg">JPG (smaller file)</option>
+        </select>
+      </div>
+      <button class="tool-btn wide" id="downloadBtn" title="Choose a panel to save">
+        <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>
+        Save a panel
+      </button>
+    </div>
+  </aside>
+
+  <main>
+    <div id="stripBoard"></div>
+  </main>
+</div>
+
+<footer>Tap a head or body to place it, then draw and color right over it — nothing is locked</footer>
+
+<script>
+(function(){
+  "use strict";
+
+  const RES = 640; // internal drawing resolution per panel (square) — bigger canvas
+  const MAX_PANELS = 8;
+  const board = document.getElementById('stripBoard');
+  const stripTitleInput = document.getElementById('stripTitle');
+
+  let panels = [];
+  let currentTool = 'brush';
+  let currentColor = '#1A1A1A';
+  let brushSize = 5;
+  let lastActivePanel = null;
+
+  const MAX_HISTORY = 25;
+
+  // ---------- Character part drawing (original line-art, not copied from any source) ----------
+  function stampStyle(ctx, color, weight){
+    ctx.fillStyle = '#ffffff';
+    ctx.strokeStyle = color;
+    ctx.lineWidth = weight;
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
+  }
+
+  function headRound(ctx,x,y,s,c){
+    const r = s*6.3; stampStyle(ctx,c,Math.max(2,s*0.3));
+    ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fill(); ctx.stroke();
+  }
+  function headOval(ctx,x,y,s,c){
+    const rx=s*4.8, ry=s*6.9; stampStyle(ctx,c,Math.max(2,s*0.3));
+    ctx.beginPath(); ctx.ellipse(x,y,rx,ry,0,0,Math.PI*2); ctx.fill(); ctx.stroke();
+  }
+  function headEars(ctx,x,y,s,c){
+    const r=s*5.4; stampStyle(ctx,c,Math.max(2,s*0.3));
+    ctx.beginPath(); ctx.arc(x,y+s*0.3,r,0,Math.PI*2); ctx.fill(); ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x-r*0.7,y-r*0.55); ctx.lineTo(x-r*1.15,y-r*1.7); ctx.lineTo(x-r*0.05,y-r*0.95); ctx.closePath();
+    ctx.fill(); ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x+r*0.7,y-r*0.55); ctx.lineTo(x+r*1.15,y-r*1.7); ctx.lineTo(x+r*0.05,y-r*0.95); ctx.closePath();
+    ctx.fill(); ctx.stroke();
+  }
+  function headSpiky(ctx,x,y,s,c){
+    const outer=s*6.9, inner=s*4.35, spikes=12;
+    stampStyle(ctx,c,Math.max(2,s*0.26));
+    ctx.beginPath();
+    for(let i=0;i<spikes*2;i++){
+      const ang=(Math.PI/spikes)*i - Math.PI/2;
+      const rad = i%2===0?outer:inner;
+      const px=x+Math.cos(ang)*rad, py=y+Math.sin(ang)*rad;
+      i===0?ctx.moveTo(px,py):ctx.lineTo(px,py);
+    }
+    ctx.closePath(); ctx.fill(); ctx.stroke();
+  }
+  function headCloud(ctx,x,y,s,c){
+    const r=s*2.85; stampStyle(ctx,c,Math.max(2,s*0.28));
+    ctx.beginPath();
+    ctx.arc(x-r*1.6,y+r*0.3,r*1.1,0,Math.PI*2);
+    ctx.arc(x-r*0.2,y-r*0.9,r*1.4,0,Math.PI*2);
+    ctx.arc(x+r*1.4,y+r*0.1,r*1.2,0,Math.PI*2);
+    ctx.arc(x+r*0.3,y+r*0.9,r*1.3,0,Math.PI*2);
+    ctx.arc(x-r*1.0,y+r*0.9,r*1.1,0,Math.PI*2);
+    ctx.fill(); ctx.stroke();
+  }
+  function headSquare(ctx,x,y,s,c){
+    const half=s*5.4, rad=s*1.4; stampStyle(ctx,c,Math.max(2,s*0.3));
+    roundRectPath(ctx,x-half,y-half,half*2,half*2,rad);
+    ctx.fill(); ctx.stroke();
+  }
+
+  function bodyRound(ctx,x,y,s,c){
+    stampStyle(ctx,c,Math.max(2,s*0.28));
+    ctx.beginPath(); ctx.ellipse(x,y,s*4,s*4.8,0,0,Math.PI*2); ctx.fill(); ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x-s*1.6,y+s*4.4); ctx.lineTo(x-s*1.9,y+s*5.6);
+    ctx.moveTo(x+s*1.6,y+s*4.4); ctx.lineTo(x+s*1.9,y+s*5.6);
+    ctx.stroke();
+  }
+  function bodyTall(ctx,x,y,s,c){
+    stampStyle(ctx,c,Math.max(2,s*0.28));
+    roundRectPath(ctx,x-s*3,y-s*4.2,s*6,s*8.6,s*2.6);
+    ctx.fill(); ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x-s*1.3,y+s*4.4); ctx.lineTo(x-s*1.5,y+s*6);
+    ctx.moveTo(x+s*1.3,y+s*4.4); ctx.lineTo(x+s*1.5,y+s*6);
+    ctx.stroke();
+  }
+  function bodyStar(ctx,x,y,s,c){
+    const outer=s*4.6, inner=s*2.1, spikes=5;
+    stampStyle(ctx,c,Math.max(2,s*0.28));
+    ctx.beginPath();
+    for(let i=0;i<spikes*2;i++){
+      const ang=(Math.PI/spikes)*i - Math.PI/2;
+      const rad=i%2===0?outer:inner;
+      const px=x+Math.cos(ang)*rad, py=y+Math.sin(ang)*rad;
+      i===0?ctx.moveTo(px,py):ctx.lineTo(px,py);
+    }
+    ctx.closePath(); ctx.fill(); ctx.stroke();
+  }
+  function bodyCone(ctx,x,y,s,c){
+    stampStyle(ctx,c,Math.max(2,s*0.28));
+    ctx.beginPath();
+    ctx.moveTo(x,y-s*4.6);
+    ctx.quadraticCurveTo(x-s*1,y, x-s*4.2,y+s*4.4);
+    ctx.lineTo(x+s*4.2,y+s*4.4);
+    ctx.quadraticCurveTo(x+s*1,y, x,y-s*4.6);
+    ctx.closePath(); ctx.fill(); ctx.stroke();
+  }
+  function bodyBlob(ctx,x,y,s,c){
+    stampStyle(ctx,c,Math.max(2,s*0.26));
+    ctx.beginPath();
+    ctx.moveTo(x, y-s*4.6);
+    ctx.bezierCurveTo(x+s*3.4,y-s*4.2, x+s*4.8,y-s*0.8, x+s*3.4,y+s*1.4);
+    ctx.bezierCurveTo(x+s*4.6,y+s*2.6, x+s*2.6,y+s*4.8, x+s*0.6,y+s*3.8);
+    ctx.bezierCurveTo(x-s*1.6,y+s*5.2, x-s*4.4,y+s*3.2, x-s*3.0,y+s*1.2);
+    ctx.bezierCurveTo(x-s*4.8,y-s*0.6, x-s*3.2,y-s*4.0, x, y-s*4.6);
+    ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x-s*1.2,y+s*4.6); ctx.lineTo(x-s*1.4,y+s*5.8);
+    ctx.moveTo(x+s*1.2,y+s*4.6); ctx.lineTo(x+s*1.4,y+s*5.8);
+    ctx.stroke();
+  }
+  function bodyCloud(ctx,x,y,s,c){
+    const r=s*1.7; stampStyle(ctx,c,Math.max(2,s*0.28));
+    ctx.beginPath();
+    ctx.arc(x-r*1.7,y+r*1.1,r*1.2,0,Math.PI*2);
+    ctx.arc(x-r*0.2,y-r*0.4,r*1.5,0,Math.PI*2);
+    ctx.arc(x+r*1.6,y+r*0.8,r*1.3,0,Math.PI*2);
+    ctx.arc(x+r*0.4,y+r*1.7,r*1.4,0,Math.PI*2);
+    ctx.arc(x-r*1.1,y+r*1.8,r*1.2,0,Math.PI*2);
+    ctx.fill(); ctx.stroke();
+  }
+
+  function roundRectPath(ctx,x,y,w,h,r){
+    ctx.beginPath();
+    ctx.moveTo(x+r,y);
+    ctx.arcTo(x+w,y,x+w,y+h,r);
+    ctx.arcTo(x+w,y+h,x,y+h,r);
+    ctx.arcTo(x,y+h,x,y,r);
+    ctx.arcTo(x,y,x+w,y,r);
+    ctx.closePath();
+  }
+
+  const STAMPS = {
+    'head-round': headRound, 'head-oval': headOval, 'head-ears': headEars,
+    'head-spiky': headSpiky, 'head-cloud': headCloud, 'head-square': headSquare,
+    'body-round': bodyRound, 'body-tall': bodyTall, 'body-star': bodyStar,
+    'body-cone': bodyCone, 'body-blob': bodyBlob, 'body-cloud': bodyCloud
+  };
+
+  // ---------- Panel setup ----------
+  function makePanel(index){
+    const wrap = document.createElement('div');
+    wrap.className = 'panel';
+    const num = document.createElement('div');
+    num.className = 'panel-num';
+    num.textContent = index+1;
+    const canvas = document.createElement('canvas');
+    canvas.width = RES; canvas.height = RES;
+    wrap.appendChild(canvas);
+    wrap.appendChild(num);
+    board.appendChild(wrap);
+
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0,0,RES,RES);
+    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+
+    const panel = { wrap, canvas, ctx, undo: [], redo: [], hasDrawn: false, placeholderDrawn:false };
+    drawPlaceholder(panel);
+    attachPanelEvents(panel);
+    return panel;
+  }
+
+  function relabelPanels(){
+    panels.forEach((p,i)=>{ p.wrap.querySelector('.panel-num').textContent = i+1; });
+  }
+
+  function updateGrid(){
+    const n = panels.length;
+    const cols = n<=2 ? n : (n<=4 ? 2 : 3);
+    board.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+  }
+
+  function addPanel(){
+    if(panels.length >= MAX_PANELS){ alert("That's enough panels for one strip — try downloading and starting a new one!"); return; }
+    const p = makePanel(panels.length);
+    panels.push(p);
+    updateGrid();
+    lastActivePanel = p;
+  }
+
+  function removePanel(){
+    if(panels.length <= 1) return;
+    const last = panels[panels.length-1];
+    if(last.hasDrawn && !confirm('Remove the last panel? It has a drawing on it.')) return;
+    last.wrap.remove();
+    panels.pop();
+    updateGrid();
+    lastActivePanel = panels[panels.length-1];
+  }
+
+  function drawPlaceholder(panel){
+    const ctx = panel.ctx;
+    ctx.save();
+    ctx.fillStyle = 'rgba(26,26,26,0.15)';
+    ctx.font = '600 26px "Space Grotesk", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('draw here', RES/2, RES/2);
+    ctx.restore();
+    panel.placeholderDrawn = true;
+  }
+
+  function clearPlaceholderIfNeeded(panel){
+    if(panel.placeholderDrawn && !panel.hasDrawn){
+      panel.ctx.clearRect(0,0,RES,RES);
+      panel.ctx.fillStyle = '#ffffff';
+      panel.ctx.fillRect(0,0,RES,RES);
+      panel.placeholderDrawn = false;
+    }
+  }
+
+  // ---------- History ----------
+  function pushUndo(panel){
+    const snap = panel.ctx.getImageData(0,0,RES,RES);
+    panel.undo.push(snap);
+    if(panel.undo.length > MAX_HISTORY) panel.undo.shift();
+    panel.redo.length = 0;
+  }
+  function undo(panel){
+    if(!panel || panel.undo.length===0) return;
+    panel.redo.push(panel.ctx.getImageData(0,0,RES,RES));
+    panel.ctx.putImageData(panel.undo.pop(),0,0);
+  }
+  function redo(panel){
+    if(!panel || panel.redo.length===0) return;
+    panel.undo.push(panel.ctx.getImageData(0,0,RES,RES));
+    panel.ctx.putImageData(panel.redo.pop(),0,0);
+  }
+
+  // ---------- Pointer handling ----------
+  function getPos(e, canvas){
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    return { x:(e.clientX-rect.left)*scaleX, y:(e.clientY-rect.top)*scaleY };
+  }
+
+  function attachPanelEvents(panel){
+    const canvas = panel.canvas;
+    let drawing = false;
+    let start = {x:0,y:0};
+    let snapshot = null;
+
+    canvas.addEventListener('pointerdown', (e)=>{
+      canvas.setPointerCapture(e.pointerId);
+      lastActivePanel = panel;
+      clearPlaceholderIfNeeded(panel);
+      const pos = getPos(e, canvas);
+
+      if(STAMPS[currentTool]){
+        pushUndo(panel);
+        STAMPS[currentTool](panel.ctx, pos.x, pos.y, Math.max(brushSize,4) * 1.3, currentColor);
+        panel.hasDrawn = true;
+        return;
+      }
+
+      pushUndo(panel);
+      drawing = true;
+      start = pos;
+      panel.hasDrawn = true;
+
+      if(currentTool==='brush' || currentTool==='eraser'){
+        panel.ctx.beginPath();
+        panel.ctx.moveTo(pos.x,pos.y);
+      } else {
+        snapshot = panel.ctx.getImageData(0,0,RES,RES);
+      }
+    });
+
+    canvas.addEventListener('pointermove', (e)=>{
+      if(!drawing) return;
+      const pos = getPos(e, canvas);
+      const ctx = panel.ctx;
+
+      if(currentTool==='brush' || currentTool==='eraser'){
+        ctx.globalCompositeOperation = currentTool==='eraser' ? 'destination-out' : 'source-over';
+        ctx.strokeStyle = currentColor;
+        ctx.lineWidth = brushSize;
+        ctx.lineTo(pos.x,pos.y);
+        ctx.stroke();
+      } else if(snapshot){
+        ctx.putImageData(snapshot,0,0);
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.strokeStyle = currentColor;
+        ctx.lineWidth = brushSize;
+        ctx.beginPath();
+        if(currentTool==='line'){
+          ctx.moveTo(start.x,start.y); ctx.lineTo(pos.x,pos.y); ctx.stroke();
+        } else if(currentTool==='rect'){
+          ctx.strokeRect(start.x,start.y,pos.x-start.x,pos.y-start.y);
+        } else if(currentTool==='circle'){
+          const rx=Math.abs(pos.x-start.x)/2, ry=Math.abs(pos.y-start.y)/2;
+          const cx=(start.x+pos.x)/2, cy=(start.y+pos.y)/2;
+          ctx.beginPath();
+          ctx.ellipse(cx,cy,Math.max(rx,1),Math.max(ry,1),0,0,Math.PI*2);
+          ctx.stroke();
+        }
+      }
+    });
+
+    function finish(e){
+      if(!drawing) return;
+      drawing = false;
+      panel.ctx.globalCompositeOperation = 'source-over';
+      snapshot = null;
+      try{ canvas.releasePointerCapture(e.pointerId); }catch(err){}
+    }
+    canvas.addEventListener('pointerup', finish);
+    canvas.addEventListener('pointercancel', finish);
+    canvas.addEventListener('pointerleave', (e)=>{ if(e.buttons===0) finish(e); });
+  }
+
+  // ---------- Toolbar wiring ----------
+  document.querySelectorAll('.tool-btn[data-tool]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      document.querySelectorAll('.tool-btn[data-tool]').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      currentTool = btn.dataset.tool;
+    });
+  });
+
+  const swatchesEl = document.getElementById('swatches');
+  const skinSwatchesEl = document.getElementById('skinSwatches');
+  const customColorEl = document.getElementById('customColor');
+  const sizeDot = document.getElementById('sizeDot');
+
+  function updateSizeDot(){
+    const d = Math.min(30, Math.max(2, brushSize));
+    sizeDot.style.width = d+'px';
+    sizeDot.style.height = d+'px';
+    sizeDot.style.background = currentColor === '#FFFFFF' ? '#1A1A1A' : currentColor;
+  }
+
+  function handleSwatchClick(e){
+    const sw = e.target.closest('.swatch');
+    if(!sw) return;
+    document.querySelectorAll('.swatch').forEach(s=>s.classList.remove('active'));
+    sw.classList.add('active');
+    currentColor = sw.dataset.color;
+    customColorEl.value = currentColor;
+    updateSizeDot();
+  }
+  swatchesEl.addEventListener('click', handleSwatchClick);
+  skinSwatchesEl.addEventListener('click', handleSwatchClick);
+  customColorEl.addEventListener('input', (e)=>{
+    currentColor = e.target.value;
+    document.querySelectorAll('.swatch').forEach(s=>s.classList.remove('active'));
+    updateSizeDot();
+  });
+
+  const brushSizeInput = document.getElementById('brushSize');
+  brushSizeInput.addEventListener('input', (e)=>{
+    brushSize = parseInt(e.target.value,10);
+    updateSizeDot();
+  });
+  updateSizeDot();
+
+  document.getElementById('undoBtn').addEventListener('click', ()=>undo(lastActivePanel));
+  document.getElementById('redoBtn').addEventListener('click', ()=>redo(lastActivePanel));
+
+  document.getElementById('clearPanelBtn').addEventListener('click', ()=>{
+    if(!lastActivePanel) return;
+    if(!confirm('Clear this panel?')) return;
+    pushUndo(lastActivePanel);
+    const ctx = lastActivePanel.ctx;
+    ctx.clearRect(0,0,RES,RES);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0,0,RES,RES);
+    lastActivePanel.hasDrawn = false;
+    drawPlaceholder(lastActivePanel);
+  });
+
+  document.getElementById('addPanelBtn').addEventListener('click', addPanel);
+  document.getElementById('removePanelBtn').addEventListener('click', removePanel);
+
+  window.addEventListener('keydown', (e)=>{
+    if(e.target.tagName === 'INPUT') return;
+    if((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==='z' && !e.shiftKey){ e.preventDefault(); undo(lastActivePanel); }
+    if((e.ctrlKey||e.metaKey) && (e.key.toLowerCase()==='y' || (e.shiftKey && e.key.toLowerCase()==='z'))){ e.preventDefault(); redo(lastActivePanel); }
+  });
+
+  // ---------- Export: one panel at a time ----------
+  function exportPanel(index){
+    const format = document.getElementById('fmtSelect').value; // 'png' or 'jpeg'
+    const panel = panels[index];
+    const title = stripTitleInput.value.trim();
+
+    // Export exactly what's drawn on the panel — no border, badge, or title.
+    let sourceCanvas = panel.canvas;
+    if(format === 'jpeg'){
+      // JPEG has no transparency, so flatten onto white first.
+      const flat = document.createElement('canvas');
+      flat.width = RES; flat.height = RES;
+      const fctx = flat.getContext('2d');
+      fctx.fillStyle = '#ffffff';
+      fctx.fillRect(0,0,RES,RES);
+      fctx.drawImage(panel.canvas, 0, 0);
+      sourceCanvas = flat;
+    }
+
+    const safeName = (title || 'my-comic').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
+    const ext = format === 'jpeg' ? 'jpg' : 'png';
+    const filename = safeName + '-panel-' + (index+1) + '.' + ext;
+    const dataUrl = format === 'jpeg' ? sourceCanvas.toDataURL('image/jpeg', 0.92) : sourceCanvas.toDataURL('image/png');
+
+    // Try the automatic download first.
+    const link = document.createElement('a');
+    link.download = filename;
+    link.href = dataUrl;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+    // Always also show the image directly, since automatic downloads
+    // can be blocked in some browsers/preview windows — this lets you
+    // save it by hand no matter what.
+    openResultModal(dataUrl, filename);
+  }
+
+  function openResultModal(dataUrl, filename){
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay';
+    const box = document.createElement('div');
+    box.className = 'modal-box result-box';
+
+    const heading = document.createElement('h3');
+    heading.textContent = 'Your image';
+    box.appendChild(heading);
+
+    const hint = document.createElement('p');
+    hint.className = 'result-hint';
+    hint.textContent = 'If it didn\u2019t download automatically: press and hold (or right-click) the image below and choose "Save image".';
+    box.appendChild(hint);
+
+    const img = document.createElement('img');
+    img.src = dataUrl;
+    img.alt = filename;
+    img.className = 'result-img';
+    box.appendChild(img);
+
+    const dlLink = document.createElement('a');
+    dlLink.href = dataUrl;
+    dlLink.download = filename;
+    dlLink.className = 'modal-panel-btn result-download';
+    dlLink.textContent = 'Download';
+    box.appendChild(dlLink);
+
+    const openTabBtn = document.createElement('button');
+    openTabBtn.className = 'modal-cancel-btn';
+    openTabBtn.textContent = 'Open in new tab';
+    openTabBtn.addEventListener('click', ()=>{
+      const w = window.open();
+      if(w){ w.document.write('<img src="'+dataUrl+'" alt="'+filename+'" style="max-width:100%;">'); }
+    });
+    box.appendChild(openTabBtn);
+
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'modal-cancel-btn';
+    closeBtn.textContent = 'Close';
+    closeBtn.addEventListener('click', ()=> overlay.remove());
+    box.appendChild(closeBtn);
+
+    overlay.appendChild(box);
+    overlay.addEventListener('click', (e)=>{ if(e.target === overlay) overlay.remove(); });
+    document.body.appendChild(overlay);
+  }
+
+  // ---------- Panel-picker modal ----------
+  function openSaveModal(){
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay';
+    const box = document.createElement('div');
+    box.className = 'modal-box';
+
+    const heading = document.createElement('h3');
+    heading.textContent = 'Which panel do you want to save?';
+    box.appendChild(heading);
+
+    const grid = document.createElement('div');
+    grid.className = 'modal-panel-grid';
+    panels.forEach((p, i)=>{
+      const b = document.createElement('button');
+      b.className = 'modal-panel-btn';
+      b.textContent = 'Panel ' + (i+1);
+      b.addEventListener('click', ()=>{
+        overlay.remove();
+        exportPanel(i);
+      });
+      grid.appendChild(b);
+    });
+    box.appendChild(grid);
+
+    const cancel = document.createElement('button');
+    cancel.className = 'modal-cancel-btn';
+    cancel.textContent = 'Cancel';
+    cancel.addEventListener('click', ()=> overlay.remove());
+    box.appendChild(cancel);
+
+    overlay.appendChild(box);
+    overlay.addEventListener('click', (e)=>{ if(e.target === overlay) overlay.remove(); });
+    document.body.appendChild(overlay);
+  }
+
+  document.getElementById('downloadBtn').addEventListener('click', openSaveModal);
+
+  // ---------- Init ----------
+  panels.push(makePanel(0));
+  panels.push(makePanel(1));
+  panels.push(makePanel(2));
+  updateGrid();
+  lastActivePanel = panels[0];
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Your Comic Page</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  :root{
+    --ink:#1a1a1a;
+    --paper:#ffffff;
+    --line:3px;
+    --gap:8px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    min-height:100vh;
+    background:
+      radial-gradient(circle, rgba(0,0,0,0.05) 1px, transparent 1.2px) 0 0/16px 16px,
+      linear-gradient(160deg,#eef2f7,#dfe7ee 60%,#d8e2ec);
+    font-family:'Georgia','Times New Roman',serif;
+    color:var(--ink);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:24px 16px 40px;
+  }
+  h1{
+    font-size:1.3rem;
+    letter-spacing:0.05em;
+    text-transform:uppercase;
+    margin-bottom:4px;
+    text-align:center;
+  }
+  .subtitle{
+    font-size:0.8rem;
+    color:#555;
+    font-style:italic;
+    margin-bottom:20px;
+    text-align:center;
+  }
+  /* the comic page itself - a thick black border like a golden-age
+     comic page, filled with rows of unevenly-sized panels */
+  #page-frame{
+    width:min(94vw, 720px);
+    background:var(--paper);
+    border:var(--line) solid var(--ink);
+    padding:var(--gap);
+    display:flex;
+    flex-direction:column;
+    gap:var(--gap);
+    aspect-ratio:7 / 9;
+  }
+  .comic-row{
+    display:flex;
+    gap:var(--gap);
+    min-height:0;
+  }
+  .panel{
+    position:relative;
+    overflow:hidden;
+    border:var(--line) solid var(--ink);
+    border-radius:2px;
+    background:repeating-linear-gradient(135deg,#fafafa,#fafafa 8px,#f3f3f3 8px,#f3f3f3 16px);
+    min-width:0;
+    min-height:0;
+  }
+  .panel.empty{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#999;
+    font-size:0.75rem;
+    border-style:dashed;
+  }
+  /* the "stage" is a fixed-size clone of the index.html canvas (700x450),
+     stretched with a CSS transform to fully fill whatever size the panel
+     is, so pictures and bubbles always fill the panel edge-to-edge */
+  .stage{
+    position:absolute;
+    top:0;left:0;
+    width:700px;
+    height:450px;
+    background-size:cover;
+    background-position:center;
+    transform-origin:top left;
+  }
+  /* clones of the pointer/arrow marks from the editor */
+  .pointerMark{
+    position:absolute;
+    width:26px;height:26px;
+    border:2px solid var(--ink);
+    border-radius:50%;
+    background:white;
+  }
+  .pointerMark::after{
+    content:"";
+    position:absolute;
+    bottom:-10px; left:2px;
+    width:0;height:0;
+    border:6px solid transparent;
+    border-top-color:white;
+  }
+  .pointerMark::before{
+    content:"";
+    position:absolute;
+    bottom:-13px; left:0px;
+    width:0;height:0;
+    border:8px solid transparent;
+    border-top-color:var(--ink);
+  }
+  .arrowMark{
+    position:absolute;
+    font-size:34px;
+    line-height:1;
+    color:var(--ink);
+  }
+  .controls{
+    margin-top:20px;
+    display:flex;
+    gap:12px;
+    flex-wrap:wrap;
+    justify-content:center;
+  }
+  button{
+    font-family:inherit;
+    font-size:0.85rem;
+    padding:10px 18px;
+    border-radius:10px;
+    border:1px solid;
+    font-weight:bold;
+    cursor:pointer;
+  }
+  #continueBtn{background:skyblue;border-color:skyblue;color:white;}
+  #backBtn{background:whitesmoke;border-color:whitesmoke;color:purple;}
+  #prevLayoutBtn,#nextLayoutBtn{background:#ffd166;border-color:#e0a800;color:#5a3d00;}
+  #pdfBtn{background:darkgreen;border-color:darkgreen;color:white;}
+  #pdfBtn:disabled{opacity:0.5;cursor:wait;}
+  .status{
+    margin-top:10px;
+    font-size:0.8rem;
+    color:#555;
+    text-align:center;
+  }
+  footer{position:relative;left:0;margin-top:40px;color:white;background-color:black;width:100%;padding:16px 0;}
+  nav ul,footer ul{
+    list-style:none;
+    display:flex;
+    flex-wrap:wrap;
+    flex-direction:row;
+    gap:20px;
+    justify-content:center;
+    padding:0 12px;
+  }
+  ul a{
+    color:white;
+    font-size:15px;
+  }
+  ul a:hover{
+    color:skyblue;
+  }
+</style>
+</head>
+<body>
+
+<h1>Your Comic Page</h1>
+<p class="subtitle">One panel per picture, laid out comic-book style</p>
+
+<div id="page-frame"></div>
+<p class="status" id="status"></p>
+<p class="status" id="layoutStatus"></p>
+
+<div class="controls">
+  <button id="backBtn">◀ Back to Editor</button>
+  <button id="prevLayoutBtn">◀ Layout</button>
+  <button id="nextLayoutBtn">Layout ▶</button>
+  <button id="continueBtn">Continue Adding Pictures ▶</button>
+  <button id="pdfBtn">⬇ Download Comic PDF</button>
+</div>
+
+<footer>
+<nav>
+<ul>
+<li><a href="page1.html">Home page</a></li>
+<li><a href="comic-strip-studio.html">draw page</a></li>
+<li><a href="https://www.freeartgen.com/">AI Generator</a></li>
+<li><a href="https://pixabay.com/">manga Generator</a></li>
+<li><a href="index.html">panel page</a></li>
+<li><a href="about.html">about</a></li>
+<li><a href="policy.html">policy</a></li>
+</ul>
+</nav>
+</footer>
+
+<script>
+// Same cross-page shim used on index.html - keeps data flowing between
+// pages even when opened directly from disk (file://).
+const Store = {
+  _read(){ try{ return JSON.parse(window.name || "{}"); }catch(e){ return {}; } },
+  get(key){
+    const v = this._read()[key];
+    if(v !== undefined) return v;
+    try{ return JSON.parse(localStorage.getItem(key)); }catch(e){ return null; }
+  }
+};
+
+const store = Store.get("store") || [];
+const panels = Store.get("panels") || [];
+
+// Panels always go in the same order you added the pictures: picture 1
+// fills panel 1, picture 6 fills panel 6, and so on - one panel per
+// picture, no separate assignment step needed.
+const total = store.length;
+const frame = document.getElementById("page-frame");
+const status = document.getElementById("status");
+const layoutStatus = document.getElementById("layoutStatus");
+
+// ---------- comic-style row layouts ----------
+// A handful of different row patterns (like classic newspaper/manga
+// pages) that spread your pictures into rows of 1, 2 or 3 panels rather
+// than one flat uniform grid. Use "Layout ◀ ▶" to flip between them.
+const LAYOUT_NAMES = ["Classic grid", "Manga triptych", "Splash opener"];
+
+function buildRowCounts(count, variant){
+  const rowCounts = [];
+  let remaining = count;
+  let i = 0;
+  while(remaining > 0){
+    let n;
+    if(variant === 0){
+      n = (i % 3 === 2) ? 1 : 2;      // mostly pairs, a full-width beat every 3rd row
+    } else if(variant === 1){
+      n = 3;                          // dense rows of three
+    } else {
+      n = (i === 0 && count > 3) ? 1 : 2; // big splash panel, then pairs
+    }
+    n = Math.min(n, remaining);
+    rowCounts.push(n);
+    remaining -= n;
+    i++;
+  }
+  return rowCounts;
+}
+
+function seededRandom(seed){
+  let t = seed >>> 0;
+  return function(){
+    t += 0x6D2B79F5;
+    let r = Math.imul(t ^ (t >>> 15), 1 | t);
+    r = (r + Math.imul(r ^ (r >>> 7), 61 | r)) ^ r;
+    return ((r ^ (r >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function buildStage(pageIndex){
+  const pageData = panels[pageIndex];
+  const stage = document.createElement("div");
+  stage.className = "stage";
+  const img = store[pageIndex];
+  if(img) stage.style.backgroundImage = `url("${img}")`;
+
+  if(pageData){
+    // clone every speech-bubble box that has content, keeping its
+    // original position/style exactly as placed in the editor
+    [...(pageData.position1||[]), ...(pageData.position2||[])].forEach(state=>{
+      if(state && state.html && state.html.trim() !== ""){
+        const clone = document.createElement("div");
+        clone.innerHTML = state.html;
+        clone.style.cssText = state.style;
+        clone.style.position = "absolute";
+        stage.appendChild(clone);
+      }
+    });
+    // clone the pointer bubbles / arrows too, so they still point at
+    // whichever character they were placed next to in the editor
+    if(pageData.extras){
+      ["pointer1","pointer2"].forEach(key=>{
+        const st = pageData.extras[key];
+        if(st && st.left){
+          const mark = document.createElement("div");
+          mark.className = "pointerMark";
+          mark.style.left = st.left;
+          mark.style.top = st.top;
+          stage.appendChild(mark);
+        }
+      });
+      ["arrow1","arrow2"].forEach(key=>{
+        const st = pageData.extras[key];
+        if(st && st.left){
+          const mark = document.createElement("div");
+          mark.className = "arrowMark";
+          mark.textContent = "➤";
+          mark.style.left = st.left;
+          mark.style.top = st.top;
+          if(st.rot) mark.style.transform = `rotate(${st.rot}deg)`;
+          stage.appendChild(mark);
+        }
+      });
+    }
+  }
+  return stage;
+}
+
+function fitStages(){
+  document.querySelectorAll(".panel:not(.empty)").forEach(panelDiv=>{
+    const stage = panelDiv.querySelector(".stage");
+    if(!stage) return;
+    // stretch independently on each axis so the picture always fills
+    // the whole panel, however oddly-shaped that panel is
+    const scaleX = panelDiv.clientWidth / 700;
+    const scaleY = panelDiv.clientHeight / 450;
+    stage.style.transform = `scale(${scaleX}, ${scaleY})`;
+  });
+}
+
+function render(variant){
+  frame.innerHTML = "";
+  if(total === 0){
+    status.textContent = "No pictures found yet — go back to the editor to add some.";
+    layoutStatus.textContent = "";
+    return;
+  }
+
+  const rowCounts = buildRowCounts(total, variant);
+  const rng = seededRandom(1000 * variant + 7);
+  let panelIdx = 0;
+
+  rowCounts.forEach(n=>{
+    const rowDiv = document.createElement("div");
+    rowDiv.className = "comic-row";
+    rowDiv.style.flex = (0.8 + rng() * 0.6).toFixed(3);
+
+    for(let c = 0; c < n; c++){
+      const panelDiv = document.createElement("div");
+      panelDiv.className = "panel";
+      panelDiv.style.flex = (0.7 + rng() * 0.6).toFixed(3);
+
+      if(panelIdx < total){
+        panelDiv.appendChild(buildStage(panelIdx));
+      } else {
+        panelDiv.classList.add("empty");
+        panelDiv.textContent = panelIdx + 1;
+      }
+      rowDiv.appendChild(panelDiv);
+      panelIdx++;
+    }
+    frame.appendChild(rowDiv);
+  });
+
+  requestAnimationFrame(fitStages);
+  status.textContent = total + " picture" + (total===1?"":"s") + " → " + total + " panel" + (total===1?"":"s") + ".";
+  layoutStatus.textContent = "Layout: " + LAYOUT_NAMES[variant];
+}
+
+let variant = parseInt(localStorage.getItem("panelLayoutVariant"), 10);
+if(isNaN(variant) || variant < 0 || variant > LAYOUT_NAMES.length - 1) variant = 0;
+
+render(variant);
+window.addEventListener("resize", fitStages);
+
+document.getElementById("prevLayoutBtn").addEventListener("click", ()=>{
+  variant = (variant - 1 + LAYOUT_NAMES.length) % LAYOUT_NAMES.length;
+  localStorage.setItem("panelLayoutVariant", variant);
+  render(variant);
+});
+document.getElementById("nextLayoutBtn").addEventListener("click", ()=>{
+  variant = (variant + 1) % LAYOUT_NAMES.length;
+  localStorage.setItem("panelLayoutVariant", variant);
+  render(variant);
+});
+
+document.getElementById("backBtn").addEventListener("click", ()=>{
+  window.location.href = "index.html";
+});
+
+document.getElementById("continueBtn").addEventListener("click", ()=>{
+  // send the editor to the first picture that hasn't been made yet
+  localStorage.setItem("currentPage", Math.max(0, total));
+  window.location.href = "index.html";
+});
+
+// Generate a PDF of the comic page exactly as currently laid out
+// (whichever layout you landed on with the Layout buttons), at high
+// resolution so pictures and text bubbles stay crisp and full-size.
+const pdfBtn = document.getElementById("pdfBtn");
+pdfBtn.addEventListener("click", async ()=>{
+  if(total === 0){
+    alert("Add at least one picture in the editor first.");
+    return;
+  }
+  pdfBtn.disabled = true;
+  pdfBtn.textContent = "Building PDF...";
+  try{
+    const shot = await html2canvas(frame, { backgroundColor:"#ffffff", scale:3, useCORS:true });
+    const { jsPDF } = window.jspdf;
+    const w = shot.width, h = shot.height;
+    const pdf = new jsPDF({ orientation: w >= h ? "landscape" : "portrait", unit:"px", format:[w, h] });
+    pdf.addImage(shot.toDataURL("image/jpeg", 0.95), "JPEG", 0, 0, w, h);
+    pdf.save("comic-page.pdf");
+  }catch(err){
+    console.error(err);
+    alert("PDF export failed - check the browser console for details.");
+  }finally{
+    pdfBtn.disabled = false;
+    pdfBtn.textContent = "⬇ Download Comic PDF";
+  }
+});
+</script>
+
+</body>
+</html>
