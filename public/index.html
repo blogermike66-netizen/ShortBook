@@ -14,7 +14,7 @@ body{
     linear-gradient(160deg,#eef2f7,#dfe7ee 60%,#d8e2ec);
 }
 #cointener{margin-left:340px;}
-  #canvas{ 
+  #canvas{
   border:3px solid;
   height:450px;
   width:700px;
@@ -165,6 +165,15 @@ body{
 	  }
 	  #pageIndicator{position:absolute;top:-30px;left:0;font-weight:bold;color:#555;}
 	  #voicePanel{display:flex;align-items:center;gap:15px;flex-wrap:wrap;margin-top:15px;padding:10px;background:white;border-radius:10px;border:1px solid #ccc;}
+	  @keyframes bubblePulse{
+	    0%,100%{ box-shadow:0 0 0 3px gold, 0 0 16px 4px rgba(255,215,0,0.7); }
+	    50%{ box-shadow:0 0 0 5px gold, 0 0 24px 8px rgba(255,215,0,0.9); }
+	  }
+	  .speakingBubble{
+	    animation:bubblePulse 0.9s ease-in-out infinite;
+	    position:relative;
+	    z-index:5;
+	  }
 	  .voicePicker{display:flex;flex-direction:column;font-size:13px;font-weight:bold;color:#333;}
 	  .voicePicker select{margin-top:4px;height:34px;border-radius:8px;border:1px solid #aaa;padding:0 6px;min-width:170px;}
 	  #playStoryBtn{height:38px;border-radius:10px;border:1px solid green;background-color:lightgreen;font-weight:bold;cursor:pointer;padding:0 14px;}
@@ -382,14 +391,29 @@ font-size:15px;
    <div id="voicePanel">
      <div class="voicePicker">
        <label for="player1Voice">Player 1 voice</label>
-       <select id="player1Voice"></select>
+       <select id="player1Voice">
+         <option value="amy">Amy (woman)</option>
+         <option value="bryce">Bryce (man)</option>
+         <option value="kusal">Kusal (man)</option>
+         <option value="hfc_female">Hfc Female (woman)</option>
+         <option value="kristin">Kristin (woman)</option>
+         <option value="libritts_r">Libritts R</option>
+       </select>
      </div>
      <div class="voicePicker">
        <label for="player2Voice">Player 2 voice</label>
-       <select id="player2Voice"></select>
+       <select id="player2Voice">
+         <option value="bryce">Bryce (man)</option>
+         <option value="kristin">Kristin (woman)</option>
+         <option value="kusal">Kusal (man)</option>
+         <option value="amy">Amy (woman)</option>
+         <option value="hfc_female">Hfc Female (woman)</option>
+         <option value="libritts_r">Libritts R</option>
+       </select>
      </div>
      <button id="playStoryBtn">▶ Play Story</button>
      <button id="stopStoryBtn">⏹ Stop</button>
+     <audio id="ttsAudio" style="display:none;"></audio>
    </div>
 
 	 <div id ="typing"></div>
@@ -512,7 +536,7 @@ const clear1 = document.getElementById("clear1");
 			 }
 			 //placing the speech Choices Charecter1//////////
 				 choice1.addEventListener("click",()=>{
-				 clearPlayer1Boxes();
+				 boxes1.innerHTML = "";
 				 const div = document.createElement("div");
 				 div.innerHTML = speech[0];
 				  	document.getElementById("boxes1").appendChild(div);
@@ -537,7 +561,7 @@ const clear1 = document.getElementById("clear1");
 					div.appendChild(div2);
                 });
 				 choice2.addEventListener("click",()=>{
-				 clearPlayer1Boxes();
+				 boxes2.innerHTML = "";
 				 const div = document.createElement("div");
 				 
 				 div.innerHTML = speech[1];
@@ -568,7 +592,7 @@ const clear1 = document.getElementById("clear1");
 				 });
 				 
 				 choice3.addEventListener("click",()=>{
-				 clearPlayer1Boxes();
+				 boxes3.innerHTML = "";
 				 const div = document.createElement("div");
 				 div.innerHTML = speech[2];
 				 document.getElementById("boxes3").appendChild(div);
@@ -593,7 +617,7 @@ const clear1 = document.getElementById("clear1");
 				 });
 				 
 				 choice4.addEventListener("click",()=>{
-				 clearPlayer1Boxes();
+				 boxes4.innerHTML = "";
 				 const div = document.createElement("div");
 				 div.innerHTML = speech[3];
 				 document.getElementById("boxes4").appendChild(div);
@@ -618,7 +642,7 @@ const clear1 = document.getElementById("clear1");
 				 });
 				 
 				 choice5.addEventListener("click",()=>{
-				 clearPlayer1Boxes();
+				 boxes5.innerHTML = "";
 				 const div = document.createElement("div");
 				 div.innerHTML = speech[4];
 				  	document.getElementById("boxes5").appendChild(div);
@@ -647,7 +671,7 @@ const clear1 = document.getElementById("clear1");
 				 
 				  //placing the speech Choices Charecter2//
 				 tChoice1.addEventListener("click",()=>{
-				 clearPlayer2Boxes();
+				 newBox1.innerHTML = "";
 				 const div = document.createElement("div");
 				 
 				 div.innerHTML = speech[0];
@@ -677,7 +701,7 @@ const clear1 = document.getElementById("clear1");
 				 });
 				 
 				 tChoice2.addEventListener("click",()=>{
-				 clearPlayer2Boxes();
+				 newBox2.innerHTML = "";
 				 const div = document.createElement("div");
 				 
 				 div.innerHTML = speech[1];
@@ -708,7 +732,7 @@ const clear1 = document.getElementById("clear1");
 				 });
 				 
 				 tChoice3.addEventListener("click",()=>{
-				 clearPlayer2Boxes();
+				 newBox3.innerHTML = "";
 				 const div = document.createElement("div");
 				 
 				 div.innerHTML = speech[2];
@@ -737,7 +761,7 @@ const clear1 = document.getElementById("clear1");
 				 });
 				 
 				  tChoice4.addEventListener("click",()=>{
-				 clearPlayer2Boxes();
+				 newBox4.innerHTML = "";
 				 const div = document.createElement("div");
 				 
 				 div.innerHTML = speech[3];
@@ -765,7 +789,7 @@ const clear1 = document.getElementById("clear1");
 					div.appendChild(div9);
 				 });
 				 	 tChoice5.addEventListener("click",()=>{
-				 clearPlayer2Boxes();
+				 newBox5.innerHTML = "";
 				 const div = document.createElement("div");
 				 
 				 div.innerHTML = speech[4];
@@ -1368,11 +1392,37 @@ let voicesReady = false;
 
 function fillVoiceSelect(selectEl, voices){
   selectEl.innerHTML = "";
-  voices.forEach((v)=>{
+
+  const isEnglish = (v) => v.lang && v.lang.toLowerCase().startsWith("en");
+  const english = voices.filter(isEnglish);
+  const others = voices.filter(v => !isEnglish(v));
+
+  const addOption = (grp, v) => {
     const opt = document.createElement("option");
     opt.value = v.name;
     opt.textContent = `${v.name} (${v.lang})`;
-    selectEl.appendChild(opt);
+    grp.appendChild(opt);
+  };
+
+  if(english.length){
+    const grp = document.createElement("optgroup");
+    grp.label = "English";
+    english.forEach(v => addOption(grp, v));
+    selectEl.appendChild(grp);
+  }
+
+  // Group whatever's left by language code, so different tones/accents
+  // within the same language stay together.
+  const byLang = {};
+  others.forEach(v=>{
+    const key = v.lang || "Other";
+    (byLang[key] = byLang[key] || []).push(v);
+  });
+  Object.keys(byLang).sort().forEach(lang=>{
+    const grp = document.createElement("optgroup");
+    grp.label = lang;
+    byLang[lang].forEach(v => addOption(grp, v));
+    selectEl.appendChild(grp);
   });
 }
 
@@ -1384,14 +1434,25 @@ function populateVoiceLists(){
   if(!allVoices.length) return;
   voicesReady = true;
 
-  // 6 voices for Player 1, a different 6 for Player 2 when the device
-  // has enough installed - falls back to sharing the same list on
-  // devices/browsers that only ship a handful of voices.
-  const player1Voices = allVoices.slice(0, 6);
-  const player2Voices = allVoices.length > 6 ? allVoices.slice(6, 12) : allVoices.slice(0, 6);
+  // Remember whatever each player already had selected, so rebuilding
+  // the list (which can fire more than once) doesn't stomp on a choice
+  // you already made and bounce it back to the first/default voice.
+  const prevPlayer1 = player1VoiceSelect.value;
+  const prevPlayer2 = player2VoiceSelect.value;
 
-  fillVoiceSelect(player1VoiceSelect, player1Voices);
-  fillVoiceSelect(player2VoiceSelect, player2Voices.length ? player2Voices : player1Voices);
+  // Both players get the FULL list (every English tone/accent first,
+  // then other languages) - so you can give Player 1 and Player 2
+  // two different English voices, or switch either to another
+  // language, instead of being locked into a fixed half-and-half split.
+  fillVoiceSelect(player1VoiceSelect, allVoices);
+  fillVoiceSelect(player2VoiceSelect, allVoices);
+
+  if(prevPlayer1 && allVoices.some(v => v.name === prevPlayer1)){
+    player1VoiceSelect.value = prevPlayer1;
+  }
+  if(prevPlayer2 && allVoices.some(v => v.name === prevPlayer2)){
+    player2VoiceSelect.value = prevPlayer2;
+  }
 }
 
 window.speechSynthesis.onvoiceschanged = populateVoiceLists;
@@ -1404,31 +1465,47 @@ const voiceRetryTimer = setInterval(()=>{
 }, 250);
 
 // Speaks one chunk of text with the chosen voice, resolving when done
-// (or immediately if there's nothing to say).
+// (or immediately if there's nothing to say). Rate is slowed down
+// below the default so it sounds like normal conversation instead of
+// rushed/robotic.
 function speak(text, voiceName){
   return new Promise((resolve)=>{
     if(!text || !text.trim()){ resolve(); return; }
     const utter = new SpeechSynthesisUtterance(text);
     const voice = allVoices.find(v => v.name === voiceName);
     if(voice) utter.voice = voice;
+    utter.rate = 0.82;
     utter.onend = resolve;
     utter.onerror = resolve;
     window.speechSynthesis.speak(utter);
   });
 }
 
+function wait(ms){
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 // Pulls the actual visible text out of the speech-bubble elements
-// themselves (not the textarea) - whatever is really on screen.
-// Only grabs the MOST RECENT bubble text in each box - if you've
-// placed more than one bubble in the same spot over time, older
-// ones can still be sitting in there too; this ignores those and
-// only reads the last (current) one, so it doesn't read stale text.
-function collectBubbleTexts(ids){
+// themselves (not the textarea) - whatever is really on screen. Only
+// grabs the MOST RECENT bubble text in each box - if you've placed
+// more than one bubble in the same spot over time, older ones can
+// still be sitting in there too; this ignores those and only reads
+// the last (current) one, so it doesn't read stale text. Returns the
+// actual elements (not just strings) so the caller can highlight
+// whichever bubble is currently talking.
+function collectBubbles(ids){
   return ids
     .map(id => document.getElementById(id))
     .filter(el => el && el.lastElementChild)
-    .map(el => (el.lastElementChild.textContent || "").trim())
-    .filter(t => t.length > 0);
+    .map(el => ({ el, bubble: el.lastElementChild, text: (el.lastElementChild.textContent || "").trim() }))
+    .filter(b => b.text.length > 0);
+}
+
+// Lights up whichever bubble is currently being spoken, and dims it
+// back down once that line is done.
+function setSpeaking(bubbleEl, isSpeaking){
+  if(!bubbleEl) return;
+  bubbleEl.classList.toggle("speakingBubble", isSpeaking);
 }
 
 function setEditingLocked(locked){
@@ -1467,24 +1544,45 @@ async function playStory(){
       if(stopRequested) break;
       loadPage(i); // restores this page's actual bubbles onto the canvas
 
+      let saidSomethingOnThisPage = false;
+
       // Player 1's bubbles, in order (boxes1 -> boxes5), read from the
       // bubbles themselves - so multiple bubbles with different text
-      // all get read, not just whatever's left in the textarea.
-      const player1Texts = collectBubbleTexts(["boxes1","boxes2","boxes3","boxes4","boxes5"]);
-      for(const text of player1Texts){
+      // all get read, not just whatever's left in the textarea. Each
+      // one lights up while it's being spoken, and there's a short
+      // pause after so back-to-back lines don't run together.
+      const player1Bubbles = collectBubbles(["boxes1","boxes2","boxes3","boxes4","boxes5"]);
+      for(const b of player1Bubbles){
         if(stopRequested) break;
         spokeAnything = true;
-        await speak(text, player1VoiceSelect.value);
+        saidSomethingOnThisPage = true;
+        setSpeaking(b.bubble, true);
+        await speak(b.text, player1VoiceSelect.value);
+        setSpeaking(b.bubble, false);
+        if(stopRequested) break;
+        await wait(450);
       }
 
       if(stopRequested) break;
 
       // Then Player 2's bubbles, same idea (newBox1 -> newBox5).
-      const player2Texts = collectBubbleTexts(["newBox1","newBox2","newBox3","newBox4","newBox5"]);
-      for(const text of player2Texts){
+      const player2Bubbles = collectBubbles(["newBox1","newBox2","newBox3","newBox4","newBox5"]);
+      for(const b of player2Bubbles){
         if(stopRequested) break;
         spokeAnything = true;
-        await speak(text, player2VoiceSelect.value);
+        saidSomethingOnThisPage = true;
+        setSpeaking(b.bubble, true);
+        await speak(b.text, player2VoiceSelect.value);
+        setSpeaking(b.bubble, false);
+        if(stopRequested) break;
+        await wait(450);
+      }
+
+      // Silent pages get shown for a beat too, instead of instantly
+      // flicking past them - keeps it feeling like a movie/slideshow
+      // rather than randomly skipping pictures with no dialogue.
+      if(!saidSomethingOnThisPage && !stopRequested){
+        await wait(1200);
       }
     }
   } finally {
