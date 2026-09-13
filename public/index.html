@@ -1089,38 +1089,20 @@ const Store = {
 };
 
 // ---------------------------------------------------------------
-// PUBLISHED BOOKS ("the shop") - a separate catalog from the live
-// editing session above. Only control.html ever writes to this list.
-// This page only ever READS it, and only when opened as a reader
-// coming from shop.html (?book=ID) - never when someone is working
-// on their own story the normal way (uploaded via page1.html).
+// PUBLISHED BOOKS ("the shop") now live in MongoDB via server.js.
+// This page only ever READS a single book (GET /api/books/:id),
+// and only when opened as a reader coming from shop.html (?book=ID)
+// - never when someone is working on their own story the normal way
+// (uploaded via page1.html).
 // ---------------------------------------------------------------
-function getPublishedBooks(){
-  // Prefer the shared books.json (committed to git, deployed with the
-  // site) so every visitor sees the same catalog. Falls back to this
-  // browser's local copy when books.json isn't reachable yet.
-  try{
-    const xhr = new XMLHttpRequest();
-    xhr.open("GET", "books.json", false);
-    xhr.send(null);
-    if(xhr.status === 200 || xhr.status === 0){
-      const data = JSON.parse(xhr.responseText);
-      if(Array.isArray(data)) return data;
-    }
-  }catch(e){ /* not deployed/reachable yet - fall through */ }
-  try{ return JSON.parse(localStorage.getItem("sb_books")) || []; }catch(e){ return []; }
-}
 const urlParamsEarly = new URLSearchParams(window.location.search);
 const requestedBookId = urlParamsEarly.get("book");
-const viewBook = requestedBookId ? getPublishedBooks().find(b => b.id === requestedBookId) : null;
-const viewMode = !!viewBook;
 
-if(requestedBookId && !viewBook){
-  alert("That story couldn't be found - it may have been removed. Taking you to the shop.");
-  window.location.href = "shop.html";
-}
+let viewBook = null;
+let viewMode = false;
+let store = [];
 
-let store = viewMode ? viewBook.pages.map(p => p.image) : (Store.get("store") || []);
+function initEditor(){
   console.log(store);
   if(viewMode){
     document.body.classList.add("viewerMode");
@@ -1698,6 +1680,31 @@ stopStoryBtn.addEventListener("click", ()=>{
   stopRequested = true;
   window.speechSynthesis.cancel();
 });
+} // end initEditor
+
+if(requestedBookId){
+  fetch(`/api/books/${encodeURIComponent(requestedBookId)}`)
+    .then(res => res.ok ? res.json() : null)
+    .then(book => {
+      if(!book){
+        alert("That story couldn't be found - it may have been removed. Taking you to the shop.");
+        window.location.href = "shop.html";
+        return;
+      }
+      viewBook = book;
+      viewMode = true;
+      store = book.pages.map(p => p.image);
+      initEditor();
+    })
+    .catch(err => {
+      console.error(err);
+      alert("Couldn't load that story - check your connection and try again.");
+      window.location.href = "shop.html";
+    });
+} else {
+  store = Store.get("store") || [];
+  initEditor();
+}
   </script>
 </body>
 </html>
