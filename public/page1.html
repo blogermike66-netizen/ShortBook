@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>page1</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>page1</title>  
   <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-9S60E8MCGZ"></script>
 <script>
@@ -19,10 +19,80 @@
 body{
   min-height:100vh;
   background:
-    radial-gradient(circle, rgba(0,0,0,0.05) 1px, transparent 1.2px) 0 0/16px 16px,
+radial-gradient(circle, rgba(0,0,0,0.05) 1px, transparent 1.2px) 0 0/16px 16px,
     linear-gradient(160deg,#eef2f7,#dfe7ee 60%,#d8e2ec);
 }
 #cointener{margin-left:340px;padding-bottom:60px;}
+#myBooksPanel{
+  position:absolute;
+  top:110px;
+  left:20px;
+  width:290px;
+  background:white;
+  border-radius:15px;
+  padding:16px;
+  box-shadow:0 3px 10px rgba(0,0,0,0.08);
+}
+#myBooksPanel h2{
+  font-size:16px;
+  color:#2A6FDB;
+  margin-bottom:10px;
+}
+#myBooksList{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.bookThumb{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  padding:8px;
+  border-radius:10px;
+  border:1px solid #e2e8f0;
+  text-decoration:none;
+  color:#333;
+  background:#f8fafc;
+  transition:transform .1s ease, box-shadow .1s ease;
+}
+.bookThumb:hover{
+  transform:translateY(-2px);
+  box-shadow:0 3px 8px rgba(0,0,0,0.12);
+}
+.bookThumb img{
+  width:44px;height:44px;
+  object-fit:cover;
+  border-radius:8px;
+  border:1px solid #2A6FDB;
+  background:white;
+  flex-shrink:0;
+}
+.bookThumb span{
+  font-weight:bold;
+  font-size:14px;
+  flex:1;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+#moreBooksBtn{
+  display:block;
+  text-align:center;
+  margin-top:12px;
+  padding:10px;
+  background:#2A6FDB;
+  color:white;
+  border-radius:10px;
+  font-weight:bold;
+  text-decoration:none;
+}
+#moreBooksBtn:hover{ background:#1b4fa0; }
+.noBooksMsg{
+  font-size:13px;
+  color:#888;
+  text-align:center;
+  padding:6px 0 2px;
+}
  #promp{
  border:2px solid;
  background-color:white;
@@ -205,6 +275,12 @@ font-size:15px;
   h1 { text-align: center; }
   body > a[href="premium"] { align-self: center; }
 
+  #myBooksPanel {
+    position: static;
+    width: 100%;
+    max-width: 420px;
+  }
+
   #cointener {
     margin-left: 0;
     padding-bottom: 0;
@@ -301,6 +377,11 @@ font-size:15px;
 <body>
 <h1>Short Book</h1>
 <a href ="premium">premium</a>
+<aside id="myBooksPanel">
+  <h2>📚 Your Books</h2>
+  <div id="myBooksList"></div>
+  <a href="shop.html" id="moreBooksBtn">More ➜</a>
+</aside>
 <div id="cointener">
 <div id="promp" placeholder ="Write a promp.write your story" ></div><br>
 <div id ="canvas"></div>
@@ -403,18 +484,21 @@ font-size:15px;
       reader.onload = () => {
         store.push(reader.result); // base64 string
         remaining--;
-        if(remaining === 0) renderSquares();
+        if(remaining === 0){
+          Store.set("store", store);
+          renderSquares();
+        }
       };
       reader.readAsDataURL(file);
     });
   }
 
-  fileInput.addEventListener("change",(event)=>{
-    addFiles(event.target.files);
-    fileInput.value = ""; // allow re-selecting the same file later
+  fileInput.addEventListener("change", ()=>{
+    addFiles(fileInput.files);
+    fileInput.value = ""; // lets the same file be picked again later
   });
 
-  next.addEventListener("click",()=>{
+  next.addEventListener("click", ()=>{
     if(store.length === 0){
       alert("Add at least one picture first.");
       return;
@@ -423,8 +507,46 @@ font-size:15px;
     window.location.href = "page2.html";
   });
 
+  renderSquares();
 
-  
+  // ---------------------------------------------------------------
+  // "Your Books" - shows up to 6 stories pushed to the shop by
+  // control.html. This page only reads the catalog, never writes it.
+  // ---------------------------------------------------------------
+  async function fetchBooks(){
+    try{
+      const res = await fetch("/api/books");
+      if(!res.ok) return [];
+      return await res.json();
+    }catch(e){ console.error(e); return []; }
+  }
+
+  async function renderMyBooks(){
+    const list = document.getElementById("myBooksList");
+    if(!list) return;
+    const books = (await fetchBooks()).slice(0, 6); // server already returns newest first
+    if(!books.length){
+      list.innerHTML = '<div class="noBooksMsg">No stories yet - start writing and they\'ll show up here!</div>';
+      return;
+    }
+    list.innerHTML = "";
+    books.forEach(book=>{
+      const a = document.createElement("a");
+      a.className = "bookThumb";
+      a.href = `index.html?book=${encodeURIComponent(book._id)}`;
+
+      const img = document.createElement("img");
+      img.src = book.cover || "";
+      a.appendChild(img);
+
+      const span = document.createElement("span");
+      span.textContent = book.title || "Untitled";
+      a.appendChild(span);
+
+      list.appendChild(a);
+    });
+  }
+  renderMyBooks();
   </script>
 </body>
 </html>

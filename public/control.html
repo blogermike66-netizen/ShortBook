@@ -196,51 +196,163 @@ font-size:15px;
 	 color:skyblue;
 	 }
 
-/* ================= READER / VIEW MODE ================= */
-/* When opened from the shop (?book=ID), the page becomes a read-only
-   reader: no editing controls, and the canvas itself ignores clicks
-   so a visitor can't accidentally erase or drag a speech bubble. */
-#bookTitleBanner{
-  display:none;
-  margin-left:340px;
-  margin-top:-10px;
-  margin-bottom:14px;
+/* ================= PUBLISHING (control.html only) ================= */
+#publishPanel{
+  margin-top:18px;
+  padding:14px;
+  background:#fff8e6;
+  border:2px dashed #e0a800;
+  border-radius:12px;
+  max-width:520px;
+}
+#publishPanel label{
+  display:block;
   font-weight:bold;
-  color:#555;
+  color:#5a3d00;
+  margin-bottom:6px;
+  font-size:13px;
 }
-#bookTitleBanner a{color:#2A6FDB;text-decoration:none;}
-#bookTitleBanner a:hover{text-decoration:underline;}
-body.viewerMode #bookTitleBanner{ display:block; }
+#bookTitleInput, #serverUrlInput, #adminKeyInput{
+  width:100%;
+  height:38px;
+  border-radius:8px;
+  border:1px solid #e0a800;
+  padding:0 10px;
+  font-size:14px;
+  margin-bottom:10px;
+}
+#pushBtn{
+  height:40px;
+  padding:0 18px;
+  border-radius:10px;
+  border:1px solid #1b7a1b;
+  background-color:#2ca02c;
+  color:white;
+  font-weight:bold;
+  cursor:pointer;
+}
+#pushBtn:hover{ background-color:#1b7a1b; }
+#pushBtn:disabled{ opacity:0.6; cursor:wait; }
+#pushStatus{
+  margin-top:8px;
+  font-size:13px;
+  font-weight:bold;
+  color:#1b7a1b;
+  min-height:18px;
+}
 
-body.viewerMode #canvas,
-body.viewerMode #canvas *{
-  pointer-events:none !important;
-  cursor:default !important;
+#myBooksPanel{
+  position:absolute;
+  top:110px;
+  left:20px;
+  width:290px;
+  background:white;
+  border-radius:15px;
+  padding:16px;
+  box-shadow:0 3px 10px rgba(0,0,0,0.08);
+  max-height:70vh;
+  overflow-y:auto;
 }
-
-body.viewerMode #player1,
-body.viewerMode #player2,
-body.viewerMode #controls > label,
-body.viewerMode [id^="player1Choice"],
-body.viewerMode [id^="player2Choice"],
-body.viewerMode .pointerBtn,
-body.viewerMode .arrowBtn,
-body.viewerMode #clear1,
-body.viewerMode #clear2,
-body.viewerMode .console1,
-body.viewerMode .console2,
-body.viewerMode #del,
-body.viewerMode #review,
-body.viewerMode #controls > br{
-  display:none !important;
+#myBooksPanel h2{
+  font-size:16px;
+  color:#2A6FDB;
+  margin-bottom:10px;
 }
+#newBookBtn{
+  display:block;
+  width:100%;
+  text-align:center;
+  margin-bottom:10px;
+  padding:8px;
+  background:#2A6FDB;
+  color:white;
+  border:none;
+  border-radius:10px;
+  font-weight:bold;
+  cursor:pointer;
+  text-decoration:none;
+  box-sizing:border-box;
+}
+#newBookBtn:hover{ background:#1b4fa0; }
+#bakeLinkBtn{
+  display:block;
+  width:100%;
+  text-align:center;
+  margin-bottom:14px;
+  padding:8px;
+  background:#e0a800;
+  color:#5a3d00;
+  border:none;
+  border-radius:10px;
+  font-weight:bold;
+  text-decoration:none;
+  box-sizing:border-box;
+}
+#bakeLinkBtn:hover{ background:#c99700; }
+#localOnlyBanner{
+  max-width:700px;
+  margin:0 0 16px 340px;
+  background:#2a2a2a;
+  color:#ffd166;
+  font-weight:bold;
+  font-size:13px;
+  padding:10px 14px;
+  border-radius:10px;
+}
+.pubBookRow{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:8px;
+  border-radius:10px;
+  border:1px solid #e2e8f0;
+  background:#f8fafc;
+  margin-bottom:8px;
+}
+.pubBookRow img{
+  width:38px;height:38px;
+  object-fit:cover;
+  border-radius:6px;
+  border:1px solid #2A6FDB;
+  background:white;
+  flex-shrink:0;
+}
+.pubBookRow .pubBookName{
+  flex:1;
+  font-size:13px;
+  font-weight:bold;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.pubBookRow button{
+  border:none;
+  border-radius:6px;
+  font-size:11px;
+  font-weight:bold;
+  padding:5px 7px;
+  cursor:pointer;
+}
+.pubBookRow .editBtn{ background:#ffd166; color:#5a3d00; }
+.pubBookRow .deleteBtn{ background:#ff6b6b; color:white; }
+.noPubBooks{ font-size:12px; color:#888; }
 
 /* ================= PHONE ================= */
 @media (max-width: 760px){
   body{ padding:20px 14px 40px; }
   h1{ text-align:center; }
   body > a[href="premium"]{ display:block; text-align:center; }
-  #bookTitleBanner{ margin-left:0; text-align:center; }
+
+  #myBooksPanel{
+    position:static;
+    width:100%;
+    max-width:420px;
+    margin:0 auto 16px;
+  }
+
+  #localOnlyBanner{ margin-left:0; max-width:none; }
+
+  #publishPanel{ max-width:none; }
 
   #cointener{
     margin-left:0;
@@ -347,7 +459,13 @@ body.viewerMode #controls > br{
 </head>
 <body>
 <h1>Short Book</h1>
-<div id="bookTitleBanner"><a href="shop.html">← Shop</a> · <span id="bookTitleText"></span></div>
+<div id="localOnlyBanner">🔒 Owner tool — keep this file on localhost only, never deploy it publicly.</div>
+<aside id="myBooksPanel">
+  <h2>📚 Published Books</h2>
+  <button id="newBookBtn">＋ New Book</button>
+  <a href="bake.html" id="bakeLinkBtn">🥐 Upload pictures (Bake)</a>
+  <div id="pubBooksList"></div>
+</aside>
 <div id="cointener">
 <div id="canvasWrap">
 <div id ="canvas">
@@ -427,6 +545,17 @@ body.viewerMode #controls > br{
    <button id ="review">Panels ▶</button>
    <button id ="pdfBtn">⬇ Download PDF</button>
    <button id ="saveImgBtn">🖼 Save Image</button>
+   </div>
+
+   <div id="publishPanel">
+     <label for="serverUrlInput">Server URL</label>
+     <input type="text" id="serverUrlInput" placeholder="http://localhost:3000">
+     <label for="adminKeyInput">Admin key</label>
+     <input type="password" id="adminKeyInput" placeholder="your admin key"value="Gambatukatiyamike03">
+     <label for="bookTitleInput">Story title (shown in the shop)</label>
+     <input type="text" id="bookTitleInput" placeholder="e.g. Max's Big Adventure" maxlength="80">
+     <button id="pushBtn">🚀 Push to Shop</button>
+     <div id="pushStatus"></div>
    </div>
 
    <div id="voicePanel">
@@ -1088,45 +1217,205 @@ const Store = {
   }
 };
 
-// ---------------------------------------------------------------
-// PUBLISHED BOOKS ("the shop") - a separate catalog from the live
-// editing session above. Only control.html ever writes to this list.
-// This page only ever READS it, and only when opened as a reader
-// coming from shop.html (?book=ID) - never when someone is working
-// on their own story the normal way (uploaded via page1.html).
-// ---------------------------------------------------------------
-function getPublishedBooks(){
-  // Prefer the shared books.json (committed to git, deployed with the
-  // site) so every visitor sees the same catalog. Falls back to this
-  // browser's local copy when books.json isn't reachable yet.
-  try{
-    const xhr = new XMLHttpRequest();
-    xhr.open("GET", "books.json", false);
-    xhr.send(null);
-    if(xhr.status === 200 || xhr.status === 0){
-      const data = JSON.parse(xhr.responseText);
-      if(Array.isArray(data)) return data;
-    }
-  }catch(e){ /* not deployed/reachable yet - fall through */ }
-  try{ return JSON.parse(localStorage.getItem("sb_books")) || []; }catch(e){ return []; }
-}
-const urlParamsEarly = new URLSearchParams(window.location.search);
-const requestedBookId = urlParamsEarly.get("book");
-const viewBook = requestedBookId ? getPublishedBooks().find(b => b.id === requestedBookId) : null;
-const viewMode = !!viewBook;
-
-if(requestedBookId && !viewBook){
-  alert("That story couldn't be found - it may have been removed. Taking you to the shop.");
-  window.location.href = "shop.html";
-}
-
-let store = viewMode ? viewBook.pages.map(p => p.image) : (Store.get("store") || []);
+let store = Store.get("control_store") || [];
   console.log(store);
-  if(viewMode){
-    document.body.classList.add("viewerMode");
-    const bannerText = document.getElementById("bookTitleText");
-    if(bannerText) bannerText.textContent = viewBook.title || "Untitled Story";
+
+  // ---------------------------------------------------------------
+  // PUBLISHED BOOKS ("the shop") now live in MongoDB behind server.js.
+  // control.html is the only page that ever writes to it (push/delete,
+  // both require the admin key below); page1.html/shop.html/index.html
+  // only ever read it.
+  // ---------------------------------------------------------------
+  const API_BASE_DEFAULT = "http://localhost:3000";
+
+  function getApiBase(){
+    return (localStorage.getItem("sb_api_base") || API_BASE_DEFAULT).replace(/\/$/, "");
   }
+  function getAdminKey(){
+    return localStorage.getItem("sb_admin_key") || "Gambatukatiyamike03";
+}
+
+  // Deliberately synchronous (old-style XHR) so the rest of this
+  // already-large script can stay exactly as it was, instead of
+  // wrapping everything in an async boot sequence.
+  function fetchBooksSync(){
+    try{
+      const xhr = new XMLHttpRequest();
+      xhr.open("GET", `${getApiBase()}/api/books`, false);
+      xhr.send(null);
+      if(xhr.status === 200){
+        const data = JSON.parse(xhr.responseText);
+        if(Array.isArray(data)) return data;
+      }
+    }catch(e){ console.error(e); }
+    return [];
+  }
+  function fetchBookSync(id){
+    try{
+      const xhr = new XMLHttpRequest();
+      xhr.open("GET", `${getApiBase()}/api/books/${encodeURIComponent(id)}`, false);
+      xhr.send(null);
+      if(xhr.status === 200) return JSON.parse(xhr.responseText);
+    }catch(e){ console.error(e); }
+    return null;
+  }
+
+  const serverUrlInput = document.getElementById("serverUrlInput");
+  const adminKeyInput = document.getElementById("adminKeyInput");
+  if(serverUrlInput){
+    serverUrlInput.value = getApiBase();
+    serverUrlInput.addEventListener("change", ()=>{
+      localStorage.setItem("sb_api_base", serverUrlInput.value.trim() || API_BASE_DEFAULT);
+    });
+  }
+  if(adminKeyInput){
+    adminKeyInput.value = getAdminKey();
+    adminKeyInput.addEventListener("change", ()=>{
+      localStorage.setItem("sb_admin_key", adminKeyInput.value);
+    });
+  }
+
+  const bookTitleInput = document.getElementById("bookTitleInput");
+  const pushBtn = document.getElementById("pushBtn");
+  const pushStatus = document.getElementById("pushStatus");
+  const newBookBtn = document.getElementById("newBookBtn");
+  const pubBooksList = document.getElementById("pubBooksList");
+
+  // If we arrived as control.html?book=ID, load that published book's
+  // pages straight into the live editing session so it can be updated.
+  const controlUrlParams = new URLSearchParams(window.location.search);
+  const editingBookId = controlUrlParams.get("book");
+  if(editingBookId){
+    const existing = fetchBookSync(editingBookId);
+    if(existing){
+      store = existing.pages.map(p => p.image);
+      Store.set("control_store", store);
+      Store.set("control_panels", existing.pages);
+      if(bookTitleInput) bookTitleInput.value = existing.title || "";
+    }
+  }
+
+  if(newBookBtn){
+    newBookBtn.addEventListener("click", ()=>{
+      if(!confirm("Start a brand new book? This clears the current pages/pictures from the editor (already-published books are unaffected).")) return;
+      Store.set("control_store", []);
+      Store.set("control_panels", []);
+      window.location.href = "control.html";
+    });
+  }
+
+  function renderPublishedBooks(){
+    if(!pubBooksList) return;
+    const books = fetchBooksSync();
+    if(!books.length){
+      pubBooksList.innerHTML = '<div class="noPubBooks">Nothing pushed to the shop yet.</div>';
+      return;
+    }
+    pubBooksList.innerHTML = "";
+    books.forEach(book=>{ // server already returns newest first
+      const row = document.createElement("div");
+      row.className = "pubBookRow";
+
+      const img = document.createElement("img");
+      img.src = book.cover || "";
+      row.appendChild(img);
+
+      const name = document.createElement("div");
+      name.className = "pubBookName";
+      name.textContent = book.title || "Untitled";
+      row.appendChild(name);
+
+      const editBtn = document.createElement("button");
+      editBtn.className = "editBtn";
+      editBtn.textContent = "Edit";
+      editBtn.addEventListener("click", ()=>{
+        window.location.href = `control.html?book=${encodeURIComponent(book._id)}`;
+      });
+      row.appendChild(editBtn);
+
+      const deleteBtn = document.createElement("button");
+      deleteBtn.className = "deleteBtn";
+      deleteBtn.textContent = "Delete";
+      deleteBtn.addEventListener("click", async ()=>{
+        if(!confirm(`Remove "${book.title || "Untitled"}" from the shop?`)) return;
+        try{
+          const res = await fetch(`${getApiBase()}/api/books/${encodeURIComponent(book._id)}`, {
+            method: "DELETE",
+            headers: { "x-admin-key": getAdminKey() }
+          });
+          if(!res.ok){
+            alert("Delete failed - check your admin key and server URL.");
+            return;
+          }
+          renderPublishedBooks();
+        }catch(e){
+          console.error(e);
+          alert("Couldn't reach the server - check the server URL and that it's running.");
+        }
+      });
+      row.appendChild(deleteBtn);
+
+      pubBooksList.appendChild(row);
+    });
+  }
+  renderPublishedBooks();
+
+  if(pushBtn){
+    pushBtn.addEventListener("click", async ()=>{
+      if(store.length === 0){
+        pushStatus.style.color = "#c0392b";
+        pushStatus.textContent = "Add at least one page first.";
+        return;
+      }
+      const title = (bookTitleInput.value || "").trim();
+      if(!title){
+        pushStatus.style.color = "#c0392b";
+        pushStatus.textContent = "Give the story a title first.";
+        bookTitleInput.focus();
+        return;
+      }
+
+      savePage(pNum); // make sure the page you're currently on is captured
+
+      const panels = Store.get("control_panels") || [];
+      const pages = store.map((image, i) => panels[i] || {
+        page:i, image, text:"", text2:"",
+        position1:[{},{},{},{},{}], position2:[{},{},{},{},{}],
+        extras:{ pointer1:null, pointer2:null, arrow1:null, arrow2:null }
+      });
+
+      const payload = { title, cover: store[0], pages };
+      if(editingBookId) payload.id = editingBookId;
+
+      pushBtn.disabled = true;
+      pushBtn.textContent = "Pushing...";
+      try{
+        const res = await fetch(`${getApiBase()}/api/books`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "x-admin-key": getAdminKey() },
+          body: JSON.stringify(payload)
+        });
+        pushBtn.disabled = false;
+        pushBtn.textContent = "🚀 Push to Shop";
+        if(res.ok){
+          pushStatus.style.color = "#1b7a1b";
+          pushStatus.textContent = "Pushed! Readers can now find it in the shop.";
+          renderPublishedBooks();
+        }else{
+          const err = await res.json().catch(()=>({}));
+          pushStatus.style.color = "#c0392b";
+          pushStatus.textContent = err.error || "Push failed - check your admin key and server URL.";
+        }
+      }catch(e){
+        console.error(e);
+        pushBtn.disabled = false;
+        pushBtn.textContent = "🚀 Push to Shop";
+        pushStatus.style.color = "#c0392b";
+        pushStatus.textContent = "Couldn't reach the server - check the server URL and that it's running.";
+      }
+    });
+  }
+
   const canvas= document.getElementById("canvas");
   const canvasWrap = document.getElementById("canvasWrap");
   const pageIndicator = document.getElementById("pageIndicator");
@@ -1199,8 +1488,7 @@ function boxState(el){
   return{html:el.innerHTML,  style:el.style.cssText};
   }
 function savePage(index){
-if(viewMode) return; // readers never write back to a published story
-let panels = Store.get("panels") || [];
+let panels = Store.get("control_panels") || [];
  panels[index] ={
  page:index,
  image:store[index],
@@ -1215,7 +1503,7 @@ let panels = Store.get("panels") || [];
     arrow2: extraState("arrow2")
   }
 };
-Store.set("panels", panels);
+Store.set("control_panels", panels);
 }
 
 function restoreBox(el,state){
@@ -1227,7 +1515,7 @@ function loadPage(index){
 clearBubble();
 canvas.style.backgroundImage = store[index] ? `url("${store[index]}")` : "none";
 pageIndicator.textContent = store.length ? `Page ${index+1} of ${store.length}` : "";
-const panels = viewMode ? viewBook.pages : (Store.get("panels") || []);
+const panels = Store.get("control_panels") || [];
 const panel = panels[index];
 player1.value = panel ? panel.text  :"";
 player2.value = panel ? panel.text2 :"";
@@ -1413,56 +1701,41 @@ function restoreExtra(id, isArrow, state){
 // screenshotting the actual #canvas element for each page, so whatever
 // you see in the editor is exactly what lands in the PDF.
 const pdfBtn = document.getElementById("pdfBtn");
+pdfBtn.addEventListener("click", async ()=>{
+  if(store.length === 0){
+    alert("Add at least one picture first.");
+    return;
+  }
+  pdfBtn.disabled = true;
+  pdfBtn.textContent = "Building PDF...";
+  const startedOn = pNum;
+  savePage(pNum); // make sure the page you're currently on is saved too
 
-// TODO: replace with your real WhatsApp number - digits only, country
-// code first, no "+", no spaces (e.g. South Africa 082 123 4567 -> "27821234567").
-const WHATSAPP_NUMBER = "27000000000";
+  try{
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({ orientation:"landscape", unit:"px", format:[700,450] });
 
-if(viewMode){
-  // Readers never generate their own PDF - it's a link into WhatsApp
-  // so the story owner can negotiate/send it personally.
-  pdfBtn.textContent = "📲 Get PDF via WhatsApp";
-  pdfBtn.addEventListener("click", ()=>{
-    const msg = `Hi! I'd like to get the PDF for "${viewBook.title || "this story"}" 📖`;
-    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, "_blank");
-  });
-} else {
-  pdfBtn.addEventListener("click", async ()=>{
-    if(store.length === 0){
-      alert("Add at least one picture first.");
-      return;
+    for(let i=0;i<store.length;i++){
+      loadPage(i);
+      // give the browser a moment to actually paint the background image
+      // and restored bubbles before we screenshot the canvas
+      await new Promise(r=>setTimeout(r,120));
+      const shot = await html2canvas(canvas, { backgroundColor:"#ffffff", width:700, height:450, scale:2, useCORS:true });
+      const imgData = shot.toDataURL("image/jpeg",0.92);
+      if(i>0) pdf.addPage([700,450],"landscape");
+      pdf.addImage(imgData,"JPEG",0,0,700,450);
     }
-    pdfBtn.disabled = true;
-    pdfBtn.textContent = "Building PDF...";
-    const startedOn = pNum;
-    savePage(pNum); // make sure the page you're currently on is saved too
 
-    try{
-      const { jsPDF } = window.jspdf;
-      const pdf = new jsPDF({ orientation:"landscape", unit:"px", format:[700,450] });
-
-      for(let i=0;i<store.length;i++){
-        loadPage(i);
-        // give the browser a moment to actually paint the background image
-        // and restored bubbles before we screenshot the canvas
-        await new Promise(r=>setTimeout(r,120));
-        const shot = await html2canvas(canvas, { backgroundColor:"#ffffff", width:700, height:450, scale:2, useCORS:true });
-        const imgData = shot.toDataURL("image/jpeg",0.92);
-        if(i>0) pdf.addPage([700,450],"landscape");
-        pdf.addImage(imgData,"JPEG",0,0,700,450);
-      }
-
-      pdf.save("shortbook.pdf");
-    }catch(err){
-      console.error(err);
-      alert("PDF export failed - check the browser console for details.");
-    }finally{
-      loadPage(startedOn);
-      pdfBtn.disabled = false;
-      pdfBtn.textContent = "⬇ Download PDF";
-    }
-  });
-}
+    pdf.save("shortbook.pdf");
+  }catch(err){
+    console.error(err);
+    alert("PDF export failed - check the browser console for details.");
+  }finally{
+    loadPage(startedOn);
+    pdfBtn.disabled = false;
+    pdfBtn.textContent = "⬇ Download PDF";
+  }
+});
 
 loadPage(pNum);
 

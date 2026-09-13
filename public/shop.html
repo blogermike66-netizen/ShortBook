@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Shop — Short Book</title>
+  <style>
+  *{margin:0;padding:0;box-sizing:border-box;font-family:Segoe UI, sans-serif;}
+  body{
+    min-height:100vh;
+    background:
+      radial-gradient(circle, rgba(0,0,0,0.05) 1px, transparent 1.2px) 0 0/16px 16px,
+      linear-gradient(160deg,#eef2f7,#dfe7ee 60%,#d8e2ec);
+    padding:30px 40px 60px;
+  }
+
+  header{
+    max-width:1100px;
+    margin:0 auto 30px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:16px;
+  }
+  h1{
+    color:#2A6FDB;
+    font-size:34px;
+  }
+  header p{
+    color:#667;
+    margin-top:4px;
+    font-size:14px;
+  }
+  #writeOwnBtn{
+    display:inline-block;
+    padding:12px 20px;
+    background:#2A6FDB;
+    color:white;
+    border-radius:12px;
+    font-weight:bold;
+    text-decoration:none;
+    box-shadow:0 3px 8px rgba(0,0,0,0.12);
+    transition:transform .1s ease, background-color .15s ease;
+    white-space:nowrap;
+  }
+  #writeOwnBtn:hover{
+    background:#1b4fa0;
+    transform:translateY(-2px);
+  }
+
+  #grid{
+    max-width:1100px;
+    margin:0 auto;
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(220px, 1fr));
+    gap:24px;
+  }
+
+  .bookCard{
+    background:white;
+    border-radius:16px;
+    overflow:hidden;
+    box-shadow:0 4px 14px rgba(0,0,0,0.10);
+    display:flex;
+    flex-direction:column;
+    text-decoration:none;
+    color:inherit;
+    transition:transform .15s ease, box-shadow .15s ease;
+    position:relative;
+  }
+  .bookCard:hover{
+    transform:translateY(-4px);
+    box-shadow:0 8px 20px rgba(0,0,0,0.16);
+  }
+  .bookCover{
+    width:100%;
+    aspect-ratio:4/3;
+    background-color:#eef2f7;
+    background-size:cover;
+    background-position:center;
+    border-bottom:1px solid #e2e8f0;
+  }
+  .bookInfo{
+    padding:14px 16px 18px;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    flex:1;
+  }
+  .bookTitle{
+    font-weight:bold;
+    font-size:16px;
+    color:#222;
+    line-height:1.3;
+  }
+  .readBtn{
+    margin-top:auto;
+    align-self:flex-start;
+    padding:8px 16px;
+    background:#2ca02c;
+    color:white;
+    border-radius:10px;
+    font-size:13px;
+    font-weight:bold;
+  }
+
+  .deleteKeyBtn{
+    position:absolute;
+    top:8px;
+    right:8px;
+    width:30px;
+    height:30px;
+    border-radius:50%;
+    border:none;
+    background:rgba(0,0,0,0.55);
+    color:white;
+    font-size:14px;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .deleteKeyBtn:hover{ background:#c0392b; }
+
+  #emptyState{
+    max-width:1100px;
+    margin:60px auto;
+    text-align:center;
+    color:#667;
+  }
+  #emptyState .icon{ font-size:52px; margin-bottom:14px; }
+  #emptyState h2{ color:#2A6FDB; margin-bottom:8px; }
+  #emptyState a{
+    display:inline-block;
+    margin-top:18px;
+    padding:12px 20px;
+    background:#2A6FDB;
+    color:white;
+    border-radius:12px;
+    font-weight:bold;
+    text-decoration:none;
+  }
+  #emptyState a:hover{ background:#1b4fa0; }
+
+  footer{
+    margin-top:60px;
+    color:white;
+    background-color:black;
+    width:100%;
+    min-height:100px;
+    padding:20px;
+    border-radius:16px;
+    max-width:1100px;
+    margin-left:auto;
+    margin-right:auto;
+  }
+  footer ul{
+    list-style:none;
+    display:flex;
+    flex-wrap:wrap;
+    gap:20px;
+  }
+  footer a{
+    color:white;
+    font-size:14px;
+    text-decoration:none;
+  }
+  footer a:hover{ color:skyblue; }
+
+  @media (max-width:760px){
+    body{ padding:20px 16px 40px; }
+    header{ flex-direction:column; align-items:flex-start; }
+    h1{ font-size:28px; }
+    #grid{ grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:16px; }
+  }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div>
+      <h1>Short Book Shop</h1>
+      <p>Pick a story to read — flip pages, listen along, and enjoy.</p>
+    </div>
+    <a href="page1.html" id="writeOwnBtn">✍️ Write your own story</a>
+  </header>
+
+  <div id="grid"></div>
+
+  <div id="emptyState" style="display:none;">
+    <div class="icon">📚</div>
+    <h2>No stories in the shop yet</h2>
+    <p>Check back soon — new stories are on the way.</p>
+    <a href="page1.html">✍️ Or start writing your own</a>
+  </div>
+
+  <footer>
+    <nav>
+      <ul>
+        <li><a href="page1.html">Home page</a></li>
+        <li><a href="comic-strip-studio.html">draw page</a></li>
+        <li><a href="about.html">about</a></li>
+        <li><a href="policy.html">policy</a></li>
+      </ul>
+    </nav>
+  </footer>
+
+  <script>
+  async function fetchBooks(){
+    try{
+      const res = await fetch("/api/books");
+      if(!res.ok) return [];
+      return await res.json();
+    }catch(e){ console.error(e); return []; }
+  }
+  async function deleteBook(id, key){
+    try{
+      const res = await fetch(`/api/books/${encodeURIComponent(id)}`, {
+        method: "DELETE",
+        headers: { "x-admin-key": key }
+      });
+      return res.ok;
+    }catch(e){ console.error(e); return false; }
+  }
+
+  async function renderShop(){
+    const grid = document.getElementById("grid");
+    const empty = document.getElementById("emptyState");
+    const books = await fetchBooks(); // server already returns newest first
+
+    if(!books.length){
+      grid.style.display = "none";
+      empty.style.display = "block";
+      return;
+    }
+
+    grid.style.display = "grid";
+    empty.style.display = "none";
+    grid.innerHTML = "";
+
+    books.forEach(book=>{
+      const card = document.createElement("a");
+      card.className = "bookCard";
+      card.href = `index.html?book=${encodeURIComponent(book._id)}`;
+
+      const cover = document.createElement("div");
+      cover.className = "bookCover";
+      if(book.cover) cover.style.backgroundImage = `url("${book.cover}")`;
+      card.appendChild(cover);
+
+      const info = document.createElement("div");
+      info.className = "bookInfo";
+
+      const title = document.createElement("div");
+      title.className = "bookTitle";
+      title.textContent = book.title || "Untitled Story";
+      info.appendChild(title);
+
+      const readBtn = document.createElement("span");
+      readBtn.className = "readBtn";
+      readBtn.textContent = "Read →";
+      info.appendChild(readBtn);
+
+      card.appendChild(info);
+
+      const deleteBtn = document.createElement("button");
+      deleteBtn.className = "deleteKeyBtn";
+      deleteBtn.textContent = "🗑";
+      deleteBtn.title = "Remove this book";
+      deleteBtn.addEventListener("click", async (e)=>{
+        e.preventDefault();
+        e.stopPropagation();
+        const key = prompt("Enter the key to remove this book:");
+        if(key === null) return;
+        if(!confirm(`Remove "${book.title || "Untitled Story"}"?`)) return;
+        const ok = await deleteBook(book._id, key);
+        if(!ok){
+          alert("Wrong key, or something went wrong.");
+          return;
+        }
+        renderShop();
+      });
+      card.appendChild(deleteBtn);
+
+      grid.appendChild(card);
+    });
+  }
+
+  renderShop();
+  </script>
+
+</body>
+</html>

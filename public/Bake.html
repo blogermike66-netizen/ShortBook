@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Bake — Short Book</title>
+  <style>
+  *{margin:0;padding:0;box-sizing:border-box;font-family:Segoe UI, sans-serif;}
+  body{
+    min-height:100vh;
+    background:
+      radial-gradient(circle, rgba(0,0,0,0.05) 1px, transparent 1.2px) 0 0/16px 16px,
+      linear-gradient(160deg,#eef2f7,#dfe7ee 60%,#d8e2ec);
+    padding:30px 40px 60px;
+  }
+  h1{ color:#2A6FDB; }
+  #localOnlyBanner{
+    max-width:700px;
+    margin:12px 0 24px;
+    background:#2a2a2a;
+    color:#ffd166;
+    font-weight:bold;
+    font-size:13px;
+    padding:10px 14px;
+    border-radius:10px;
+  }
+
+  #panel{
+    max-width:800px;
+    background:white;
+    border-radius:16px;
+    padding:24px;
+    box-shadow:0 4px 14px rgba(0,0,0,0.10);
+  }
+  #panel p{ color:#667; margin-bottom:18px; font-size:14px; }
+
+  #file{
+    height:44px;
+    padding:8px 10px;
+    color:#2A6FDB;
+    background-color:white;
+    border:2px solid #2A6FDB;
+    border-radius:10px;
+    font-weight:bold;
+    cursor:pointer;
+    margin-bottom:20px;
+  }
+  #count{
+    color:green;
+    font-size:18px;
+    font-weight:bold;
+    margin-bottom:16px;
+  }
+
+  #box{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(120px, 1fr));
+    gap:14px;
+    margin-bottom:24px;
+  }
+  .square{
+    aspect-ratio:1/1;
+    border:2px solid #2A6FDB;
+    background-color:white;
+    background-size:cover;
+    background-position:center;
+    background-repeat:no-repeat;
+    border-radius:8px;
+    position:relative;
+    box-shadow:0 3px 8px rgba(0,0,0,0.12);
+  }
+  .square .remove{
+    position:absolute;
+    top:-8px; right:-8px;
+    width:22px; height:22px;
+    border-radius:50%;
+    background:red;
+    color:white;
+    border:2px solid white;
+    font-weight:bold;
+    font-size:12px;
+    line-height:16px;
+    text-align:center;
+    cursor:pointer;
+  }
+
+  #continueBtn{
+    display:inline-block;
+    padding:12px 22px;
+    border-radius:10px;
+    border:1px solid;
+    background-color:purple;
+    border-color:purple;
+    font-weight:bold;
+    color:white;
+    cursor:pointer;
+    text-decoration:none;
+  }
+  #continueBtn:hover{ background-color:#5c0080; }
+
+  @media (max-width:760px){
+    body{ padding:20px 16px 40px; }
+    #panel{ padding:18px; }
+  }
+  </style>
+</head>
+<body>
+
+  <h1>Bake — upload pictures</h1>
+  <div id="localOnlyBanner">🔒 Owner tool — keep this file on localhost only, never deploy it publicly.</div>
+
+  <div id="panel">
+    <p>Upload the pictures for your next story here, then hit "Continue to Control" to add speech bubbles and push it to the shop.</p>
+    <input type="file" id="file" accept="image/*" multiple>
+    <div id="count">0 pictures</div>
+    <section id="box"></section>
+    <button id="continueBtn">Continue to Control →</button>
+  </div>
+
+  <script>
+  const fileInput = document.getElementById("file");
+  const box = document.getElementById("box");
+  const count = document.getElementById("count");
+  const continueBtn = document.getElementById("continueBtn");
+
+  // Same cross-page shim used by page1.html/control.html/index.html.
+  const Store = {
+    _read(){ try{ return JSON.parse(window.name || "{}"); }catch(e){ return {}; } },
+    get(key){
+      const v = this._read()[key];
+      if(v !== undefined) return v;
+      try{ return JSON.parse(localStorage.getItem(key)); }catch(e){ return null; }
+    },
+    set(key, value){
+      const data = this._read();
+      data[key] = value;
+      window.name = JSON.stringify(data);
+      try{ localStorage.setItem(key, JSON.stringify(value)); }catch(e){}
+    }
+  };
+
+  // Deliberately a SEPARATE key ("control_store") from the public
+  // "store" key that page1.html/index.html use for visitors writing
+  // their own story - so bake/control never collides with what a
+  // regular visitor is doing on this same browser.
+  let store = Store.get("control_store") || [];
+
+  function renderSquares(){
+    box.innerHTML = "";
+    store.forEach((dataUrl, i)=>{
+      const sq = document.createElement("div");
+      sq.className = "square";
+      sq.style.backgroundImage = `url("${dataUrl}")`;
+
+      const remove = document.createElement("div");
+      remove.className = "remove";
+      remove.textContent = "x";
+      remove.title = "Remove this picture";
+      remove.addEventListener("click",(e)=>{
+        e.stopPropagation();
+        store.splice(i,1);
+        Store.set("control_store", store);
+        renderSquares();
+      });
+
+      sq.appendChild(remove);
+      box.appendChild(sq);
+    });
+    count.textContent = `${store.length} picture${store.length === 1 ? "" : "s"}`;
+  }
+
+  function addFiles(fileList){
+    const files = Array.from(fileList);
+    let remaining = files.length;
+    if(!remaining) return;
+    files.forEach(file=>{
+      const reader = new FileReader();
+      reader.onload = () => {
+        store.push(reader.result);
+        remaining--;
+        if(remaining === 0){
+          Store.set("control_store", store);
+          renderSquares();
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  fileInput.addEventListener("change", ()=>{
+    addFiles(fileInput.files);
+    fileInput.value = "";
+  });
+
+  continueBtn.addEventListener("click", ()=>{
+    if(store.length === 0){
+      alert("Add at least one picture first.");
+      return;
+    }
+    Store.set("control_store", store);
+    window.location.href = "control.html";
+  });
+
+  renderSquares();
+  </script>
+
+</body>
+</html>
