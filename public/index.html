@@ -20,11 +20,26 @@ body{
   width:700px;
   border-radius:15px;
   background-color:#eee;
-  background-size:cover;
+  background-size:contain;
   background-position:center;
   background-repeat:no-repeat;
   position:relative;
   overflow:hidden;
+  }
+  /* Sits behind the real picture and fills the whole box with a
+     blurred, zoomed-in copy of the same image. This way the actual
+     photo (on #canvas itself, using "contain") is never cropped -
+     you always see the whole thing - but there's no empty gap around
+     it either, because the blurred copy fills in the edges. */
+  #canvasBlurBg{
+    position:absolute;
+    inset:0;
+    background-size:cover;
+    background-position:center;
+    background-repeat:no-repeat;
+    filter:blur(18px) brightness(0.85);
+    transform:scale(1.15); /* hides the blurred edge softening/halo */
+    z-index:-1;
   }
   input{border-radius:15px;}
 /* boxesN / newBoxN now live INSIDE #canvas, so these coordinates are
@@ -351,6 +366,7 @@ body.viewerMode #controls > br{
 <div id="cointener">
 <div id="canvasWrap">
 <div id ="canvas">
+  <div id="canvasBlurBg"></div>
   <div id="pageIndicator"></div>
   <section id ="box">
    <div id ="boxes1"></div>
@@ -1208,6 +1224,8 @@ el.style.cssText = state ? state.style :"";
 function loadPage(index){
 clearBubble();
 canvas.style.backgroundImage = store[index] ? `url("${store[index]}")` : "none";
+const blurBg = document.getElementById("canvasBlurBg");
+if(blurBg) blurBg.style.backgroundImage = store[index] ? `url("${store[index]}")` : "none";
 pageIndicator.textContent = store.length ? `Page ${index+1} of ${store.length}` : "";
 const panels = viewMode ? viewBook.pages : (Store.get("panels") || []);
 const panel = panels[index];
