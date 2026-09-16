@@ -1926,8 +1926,12 @@ stopStoryBtn.addEventListener("click", ()=>{
 } // end initEditor
 
 function getApiBase(){
-  const API_BASE_DEFAULT = "http://localhost:3000";
-  return (localStorage.getItem("sb_api_base") || API_BASE_DEFAULT).replace(/\/$/, "");
+  // Empty default = "use whichever server this page is already loaded
+  // from" - correct for a single Express app serving the site + API
+  // together. Only overridden if control.html saved a different
+  // sb_api_base in this browser (e.g. for local testing).
+  const API_BASE_DEFAULT = "";
+  return ((localStorage.getItem("sb_api_base") || API_BASE_DEFAULT).trim()).replace(/\/$/, "");
 }
 
 if(requestedBookId){

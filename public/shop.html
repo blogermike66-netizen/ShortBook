@@ -399,9 +399,13 @@
   </footer>
 
   <script>
-  const API_BASE_DEFAULT = "http://localhost:3000";
+  // Empty default = "use whichever server this page is already loaded
+  // from" - correct for a single Express app serving the site + API
+  // together. Only override sb_api_base (via control.html) if your
+  // API genuinely lives on a different address than the pages.
+  const API_BASE_DEFAULT = "";
   function getApiBase(){
-    return (localStorage.getItem("sb_api_base") || API_BASE_DEFAULT).replace(/\/$/, "");
+    return ((localStorage.getItem("sb_api_base") || API_BASE_DEFAULT).trim()).replace(/\/$/, "");
   }
 
   const track    = document.getElementById("track");
