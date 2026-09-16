@@ -126,6 +126,13 @@ app.delete("/api/books/:id", requireAdmin, async (req, res) => {
   }
 });
 
+// Landing page: shop.html instead of the static default of index.html.
+// Must come BEFORE express.static, which would otherwise hand out
+// index.html for "/" on its own.
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "shop.html"));
+});
+
 // Serves the PUBLIC reading site only. Keep control.html and bake.html
 // OUT of this folder - they're the owner tools and should never be
 // deployed alongside this.
