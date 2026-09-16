@@ -9,7 +9,7 @@
  *{margin:0;padding:0;box-sizing:border-box;font-family:Segoe UI, sans-serif;}
 body{
   min-height:100vh;
-  background-image:url("download (4).jpg");
+  background:linear-gradient(135deg,#f6f9fc,#e9eef5);
 }
 #cointener{margin-left:340px;}
   #canvas{
@@ -1755,8 +1755,39 @@ let storyPlaying = false;
 let stopRequested = false;
 let voicesReady = false;
 
+// ---------------------------------------------------------------
+// VOICE QUALITY FILTER
+// Every OS/browser ships a mix of old, robotic SAPI-style voices
+// (Microsoft David/Zira/Mark, "Desktop" voices, eSpeak, Festival,
+// "Compact" macOS voices) alongside the newer natural/neural ones
+// (Ava, William, Maisie, Brian, Steffan/Sonia/Ryan/Libby on Edge,
+// Aria/Jenny/Guy/Emma/Andrew, Google's WaveNet voices, etc).
+// We drop the robotic ones entirely and put the known-natural ones
+// at the top of the list so they're the easy default pick.
+// ---------------------------------------------------------------
+const ROBOTIC_VOICE_PATTERN = /\b(david|zira|mark|susan|hazel desktop|desktop|espeak|festival|compact|pico|whisper)\b/i;
+
+const NATURAL_VOICE_HINTS = [
+  "ava", "william", "maisie", "brian", "steffan", "stefan", "sonia", "ryan",
+  "libby", "thomas", "aria", "jenny", "guy", "emma", "andrew", "christopher",
+  "eric", "michelle", "roger", "nancy", "davis", "jane", "jason", "sara",
+  "tony", "nova", "natasha", "clara", "liam", "ana", "elizabeth", "connor",
+  "ella", "james", "linda", "natural", "online", "wavenet", "neural"
+];
+
+function isRoboticVoice(v){
+  return ROBOTIC_VOICE_PATTERN.test(v.name);
+}
+function isNaturalVoice(v){
+  const n = v.name.toLowerCase();
+  return NATURAL_VOICE_HINTS.some(hint => n.includes(hint));
+}
+
 function fillVoiceSelect(selectEl, voices){
   selectEl.innerHTML = "";
+
+  // Robotic voices are removed outright - never shown, never pickable.
+  voices = voices.filter(v => !isRoboticVoice(v));
 
   const isEnglish = (v) => v.lang && v.lang.toLowerCase().startsWith("en");
   const english = voices.filter(isEnglish);
@@ -1770,10 +1801,22 @@ function fillVoiceSelect(selectEl, voices){
   };
 
   if(english.length){
-    const grp = document.createElement("optgroup");
-    grp.label = "English";
-    english.forEach(v => addOption(grp, v));
-    selectEl.appendChild(grp);
+    // Best/natural-sounding voices float to the top of their own group.
+    const best = english.filter(isNaturalVoice);
+    const rest = english.filter(v => !isNaturalVoice(v));
+
+    if(best.length){
+      const grpBest = document.createElement("optgroup");
+      grpBest.label = "\u2b50 Best voices";
+      best.forEach(v => addOption(grpBest, v));
+      selectEl.appendChild(grpBest);
+    }
+    if(rest.length){
+      const grpRest = document.createElement("optgroup");
+      grpRest.label = best.length ? "Other English voices" : "English";
+      rest.forEach(v => addOption(grpRest, v));
+      selectEl.appendChild(grpRest);
+    }
   }
 
   // Group whatever's left by language code, so different tones/accents

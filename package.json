@@ -1,21 +1,17 @@
 {
-  "name": "shortbook-backend",
+  "name": "shortbook-server",
   "version": "1.0.0",
-  "description": "Backend API for ShortBook - handles image uploads, panel/speech-bubble data, and PDF export.",
+  "private": true,
+  "description": "Server for the Short Book shop - stores published books in MongoDB.",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js"
   },
   "dependencies": {
-    "cookie-parser": "^1.4.6",
-    "cors": "^2.8.6",
-    "dotenv": "^17.4.2",
-    "express": "^4.22.2",
-    "mongodb": "^7.6.0",
-    "mongoose": "^9.10.0",
-    "multer": "^1.4.5-lts.1",
-    "pdfkit": "^0.15.0",
-    "uuid": "^9.0.1"
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "mongoose": "^8.5.0"
   }
 }

@@ -192,6 +192,8 @@ background:linear-gradient(135deg,#f6f9fc,#e9eef5);
 	  #playStoryBtn{height:38px;border-radius:10px;border:1px solid green;background-color:lightgreen;font-weight:bold;cursor:pointer;padding:0 14px;}
 	  #stopStoryBtn{height:38px;border-radius:10px;border:1px solid darkred;background-color:mistyrose;color:darkred;font-weight:bold;cursor:pointer;padding:0 14px;}
 	  #playStoryBtn:disabled,#stopStoryBtn:disabled{opacity:0.5;cursor:not-allowed;}
+	  #readingMusicToggle{height:38px;border-radius:10px;border:1px solid #7a5cd6;background-color:#efe9ff;color:#4a2fae;font-weight:bold;cursor:pointer;padding:0 14px;}
+	  #readingMusicToggle.on{background-color:#7a5cd6;color:white;}
 	 footer{position:relative;margin-left:-340px;margin-top:60px;color:white;background-color:black;width:100vw;min-height:100px;padding:20px;}
 	 nav ul,footer ul{
 	 list-style:none;
@@ -444,6 +446,9 @@ body.viewerMode #controls > br{
    </div>
 
    <div id="voicePanel">
+     <p id="audioHint" style="width:100%;margin:0 0 10px;font-size:13px;color:#555;">
+       🎧 Choose whichever voices and background music sound best to you — pick what you enjoy, there's no wrong answer.
+     </p>
      <div class="voicePicker">
        <label for="player1Voice">Player 1 voice</label>
        <select id="player1Voice">
@@ -469,6 +474,11 @@ body.viewerMode #controls > br{
      <button id="playStoryBtn">▶ Play Story</button>
      <button id="stopStoryBtn">⏹ Stop</button>
      <audio id="ttsAudio" style="display:none;"></audio>
+
+     <div class="voicePicker" id="musicPicker">
+       <label for="readingMusicToggle">Background music</label>
+       <button id="readingMusicToggle" type="button">🔇 Off</button>
+     </div>
    </div>
 
 	 <div id ="typing"></div>
@@ -1482,8 +1492,34 @@ let storyPlaying = false;
 let stopRequested = false;
 let voicesReady = false;
 
+// ---------------------------------------------------------------
+// VOICE QUALITY FILTER - drop the old robotic system voices
+// (Microsoft David/Zira/Mark, "Desktop" voices, eSpeak, Festival,
+// macOS "Compact") and star the natural/neural ones (Ava, William,
+// Maisie, Brian, Steffan, Sonia, Aria, Jenny, Guy, etc) at the top.
+// ---------------------------------------------------------------
+const ROBOTIC_VOICE_PATTERN = /\b(david|zira|mark|susan|hazel desktop|desktop|espeak|festival|compact|pico|whisper)\b/i;
+
+const NATURAL_VOICE_HINTS = [
+  "ava", "william", "maisie", "brian", "steffan", "stefan", "sonia", "ryan",
+  "libby", "thomas", "aria", "jenny", "guy", "emma", "andrew", "christopher",
+  "eric", "michelle", "roger", "nancy", "davis", "jane", "jason", "sara",
+  "tony", "nova", "natasha", "clara", "liam", "ana", "elizabeth", "connor",
+  "ella", "james", "linda", "natural", "online", "wavenet", "neural"
+];
+
+function isRoboticVoice(v){
+  return ROBOTIC_VOICE_PATTERN.test(v.name);
+}
+function isNaturalVoice(v){
+  const n = v.name.toLowerCase();
+  return NATURAL_VOICE_HINTS.some(hint => n.includes(hint));
+}
+
 function fillVoiceSelect(selectEl, voices){
   selectEl.innerHTML = "";
+
+  voices = voices.filter(v => !isRoboticVoice(v));
 
   const isEnglish = (v) => v.lang && v.lang.toLowerCase().startsWith("en");
   const english = voices.filter(isEnglish);
@@ -1497,10 +1533,21 @@ function fillVoiceSelect(selectEl, voices){
   };
 
   if(english.length){
-    const grp = document.createElement("optgroup");
-    grp.label = "English";
-    english.forEach(v => addOption(grp, v));
-    selectEl.appendChild(grp);
+    const best = english.filter(isNaturalVoice);
+    const rest = english.filter(v => !isNaturalVoice(v));
+
+    if(best.length){
+      const grpBest = document.createElement("optgroup");
+      grpBest.label = "\u2b50 Best voices";
+      best.forEach(v => addOption(grpBest, v));
+      selectEl.appendChild(grpBest);
+    }
+    if(rest.length){
+      const grpRest = document.createElement("optgroup");
+      grpRest.label = best.length ? "Other English voices" : "English";
+      rest.forEach(v => addOption(grpRest, v));
+      selectEl.appendChild(grpRest);
+    }
   }
 
   // Group whatever's left by language code, so different tones/accents
@@ -1556,6 +1603,185 @@ const voiceRetryTimer = setInterval(()=>{
   populateVoiceLists();
 }, 250);
 
+// ---------------------------------------------------------------
+// BACKGROUND READING MUSIC
+// Generated on the spot with the Web Audio API - nothing downloaded,
+// nothing to license. Built to actually sound pleasant rather than a
+// single flat drone: a slow, cycling chord progression (each chord
+// fades gently into the next), a soft plucked melody wandering over
+// the top, and a short algorithmic reverb (a burst of filtered noise
+// used as an impulse response) so the notes have some space around
+// them instead of sounding dry and thin. Automatically ducks under
+// the narration and rises back up in the gaps.
+// ---------------------------------------------------------------
+const ReadingMusic = (function(){
+  let ctx = null, master = null, dry = null, wet = null, convolver = null;
+  let on = false, chordTimer = null, melodyTimer = null, chordIndex = 0;
+  let currentPad = [];
+
+  // Cmaj9 - Amin7 - Fmaj7 - Gmaj7 - a gentle, slightly wistful loop
+  const CHORDS = [
+    [261.63, 329.63, 392.00, 493.88],  // C E G B
+    [220.00, 261.63, 329.63, 392.00],  // A C E G
+    [174.61, 220.00, 261.63, 349.23],  // F A C F(high)
+    [196.00, 246.94, 293.66, 392.00],  // G B D G
+  ];
+  const MELODY_SCALE = [523.25, 587.33, 659.25, 783.99, 880.00, 987.77]; // C D E G A B, one octave up
+
+  function buildReverb(){
+    // 2.4s of noise shaped into a natural decay curve = a simple room reverb
+    const len = ctx.sampleRate * 2.4;
+    const buf = ctx.createBuffer(2, len, ctx.sampleRate);
+    for(let ch=0; ch<2; ch++){
+      const data = buf.getChannelData(ch);
+      for(let i=0;i<len;i++){
+        data[i] = (Math.random()*2 - 1) * Math.pow(1 - i/len, 2.5);
+      }
+    }
+    const conv = ctx.createConvolver();
+    conv.buffer = buf;
+    return conv;
+  }
+
+  function padVoice(freq){
+    const osc1 = ctx.createOscillator();
+    const osc2 = ctx.createOscillator();
+    const filt = ctx.createBiquadFilter();
+    const gain = ctx.createGain();
+
+    osc1.type = "sine";     osc1.frequency.value = freq;
+    osc2.type = "triangle"; osc2.frequency.value = freq * 1.004; // detune = warmth/chorus
+    filt.type = "lowpass";  filt.frequency.value = 950;
+
+    gain.gain.value = 0;
+
+    osc1.connect(filt); osc2.connect(filt);
+    filt.connect(gain);
+    gain.connect(dry);
+    gain.connect(wet);
+    osc1.start(); osc2.start();
+    return { osc1, osc2, gain };
+  }
+
+  function fadeToChord(notes){
+    const t = ctx.currentTime;
+    const old = currentPad;
+    currentPad = notes.map(freq => padVoice(freq));
+
+    // new chord fades in
+    currentPad.forEach(v=>{
+      v.gain.gain.cancelScheduledValues(t);
+      v.gain.gain.setValueAtTime(0, t);
+      v.gain.gain.linearRampToValueAtTime(0.045, t + 3.5);
+    });
+
+    // old chord fades out and is cleaned up
+    old.forEach(v=>{
+      v.gain.gain.cancelScheduledValues(t);
+      v.gain.gain.setValueAtTime(v.gain.gain.value, t);
+      v.gain.gain.linearRampToValueAtTime(0, t + 3.5);
+      setTimeout(()=>{ try{ v.osc1.stop(); v.osc2.stop(); }catch(e){} }, 3700);
+    });
+  }
+
+  function nextChord(){
+    if(!on) return;
+    fadeToChord(CHORDS[chordIndex % CHORDS.length]);
+    chordIndex++;
+    chordTimer = setTimeout(nextChord, 9000);
+  }
+
+  function pluck(freq, when, level){
+    const osc  = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = "sine";
+    osc.frequency.value = freq;
+
+    gain.gain.setValueAtTime(0, when);
+    gain.gain.linearRampToValueAtTime(level, when + 0.03);
+    gain.gain.exponentialRampToValueAtTime(0.0001, when + 2.6);
+
+    osc.connect(gain);
+    gain.connect(dry);
+    gain.connect(wet);
+    osc.start(when);
+    osc.stop(when + 2.8);
+  }
+
+  function nextMelodyNote(){
+    if(!on) return;
+    if(Math.random() < 0.65){
+      const note = MELODY_SCALE[Math.floor(Math.random() * MELODY_SCALE.length)];
+      pluck(note, ctx.currentTime + 0.05, 0.05);
+    }
+    melodyTimer = setTimeout(nextMelodyNote, 1800 + Math.random() * 1600);
+  }
+
+  function start(){
+    if(on) return;
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if(!AC) return;
+    if(!ctx){
+      ctx = new AC();
+      master = ctx.createGain();
+      master.gain.value = 0.55;
+      master.connect(ctx.destination);
+
+      dry = ctx.createGain(); dry.gain.value = 1;
+      wet = ctx.createGain(); wet.gain.value = 0.35;
+      convolver = buildReverb();
+
+      dry.connect(master);
+      wet.connect(convolver);
+      convolver.connect(master);
+    }
+    if(ctx.state === "suspended") ctx.resume();
+    on = true;
+    chordIndex = 0;
+    nextChord();
+    nextMelodyNote();
+  }
+
+  function stop(){
+    if(!on) return;
+    on = false;
+    clearTimeout(chordTimer);
+    clearTimeout(melodyTimer);
+    const t = ctx.currentTime;
+    currentPad.forEach(v=>{
+      v.gain.gain.cancelScheduledValues(t);
+      v.gain.gain.setValueAtTime(v.gain.gain.value, t);
+      v.gain.gain.linearRampToValueAtTime(0, t + 1.5);
+      setTimeout(()=>{ try{ v.osc1.stop(); v.osc2.stop(); }catch(e){} }, 1700);
+    });
+    currentPad = [];
+  }
+
+  // pulled down while a voice is reading, restored in the gaps
+  function duck(yes){
+    if(!ctx || !master) return;
+    master.gain.cancelScheduledValues(ctx.currentTime);
+    master.gain.linearRampToValueAtTime(yes ? 0.15 : 0.55, ctx.currentTime + 0.5);
+  }
+
+  return { start, stop, duck, isOn: ()=> on };
+})();
+
+const readingMusicToggle = document.getElementById("readingMusicToggle");
+if(readingMusicToggle){
+  readingMusicToggle.addEventListener("click", ()=>{
+    if(ReadingMusic.isOn()){
+      ReadingMusic.stop();
+      readingMusicToggle.textContent = "\ud83d\udd07 Off";
+      readingMusicToggle.classList.remove("on");
+    }else{
+      ReadingMusic.start();
+      readingMusicToggle.textContent = "\ud83d\udd0a On";
+      readingMusicToggle.classList.add("on");
+    }
+  });
+}
+
 // Speaks one chunk of text with the chosen voice, resolving when done
 // (or immediately if there's nothing to say). Rate is slowed down
 // below the default so it sounds like normal conversation instead of
@@ -1567,8 +1793,9 @@ function speak(text, voiceName){
     const voice = allVoices.find(v => v.name === voiceName);
     if(voice) utter.voice = voice;
     utter.rate = 0.82;
-    utter.onend = resolve;
-    utter.onerror = resolve;
+    utter.onstart = ()=> ReadingMusic.duck(true);
+    utter.onend = ()=>{ ReadingMusic.duck(false); resolve(); };
+    utter.onerror = ()=>{ ReadingMusic.duck(false); resolve(); };
     window.speechSynthesis.speak(utter);
   });
 }
@@ -1698,8 +1925,13 @@ stopStoryBtn.addEventListener("click", ()=>{
 });
 } // end initEditor
 
+function getApiBase(){
+  const API_BASE_DEFAULT = "http://localhost:3000";
+  return (localStorage.getItem("sb_api_base") || API_BASE_DEFAULT).replace(/\/$/, "");
+}
+
 if(requestedBookId){
-  fetch(`/api/books/${encodeURIComponent(requestedBookId)}`)
+  fetch(`${getApiBase()}/api/books/${encodeURIComponent(requestedBookId)}`)
     .then(res => res.ok ? res.json() : null)
     .then(book => {
       if(!book){
