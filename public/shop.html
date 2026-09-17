@@ -748,7 +748,17 @@
     const voices  = speechSynthesis.getVoices();
     const ava     = voices.find(v => v.name.toLowerCase().includes("ava"));
     const william = voices.find(v => v.name.toLowerCase().includes("william"));
-    const chosen  = Math.random() < 0.5 ? ava : william;
+
+    // Ava/William are premium voices that only exist on some devices. If
+    // neither is installed (most phones/other computers), don't silently
+    // fall through to the browser's absolute default voice - that default
+    // is often a low-quality/robotic one. Instead pick any other English
+    // voice on the device, which sounds far closer to what was intended.
+    let chosen = (ava && william) ? (Math.random() < 0.5 ? ava : william) : (ava || william);
+    if(!chosen){
+      const english = voices.filter(v => v.lang && v.lang.toLowerCase().startsWith("en"));
+      chosen = english[Math.floor(Math.random() * english.length)] || voices[0];
+    }
     if(chosen) speech.voice = chosen;
 
     speech.onstart = ()=> Music.duck(true);    // music steps back

@@ -18,15 +18,12 @@ background:linear-gradient(135deg,#f6f9fc,#e9eef5);
   width:700px;
   border-radius:15px;
   background-color:#eee;
-  background-size:contain;
-  background-position:center;
-  background-repeat:no-repeat;
   position:relative;
   overflow:hidden;
   }
   /* Sits behind the real picture and fills the whole box with a
      blurred, zoomed-in copy of the same image. This way the actual
-     photo (on #canvas itself, using "contain") is never cropped -
+     photo (on #canvasFg, using "contain") is never cropped -
      you always see the whole thing - but there's no empty gap around
      it either, because the blurred copy fills in the edges. */
   #canvasBlurBg{
@@ -38,6 +35,24 @@ background:linear-gradient(135deg,#f6f9fc,#e9eef5);
     filter:blur(18px) brightness(0.85);
     transform:scale(1.15); /* hides the blurred edge softening/halo */
     z-index:-1;
+  }
+  /* The actual sharp photo. This used to just be #canvas's own CSS
+     background, sitting "under" #canvasBlurBg via z-index:-1 - which
+     only works when #canvas has no transform of its own. On phone,
+     #canvas gets a scale() transform (see fitCanvasScale), and a
+     transform creates a new stacking context, which traps the -1
+     blur layer INSIDE #canvas instead of letting it escape behind
+     everything - so it ends up painted on top of the sharp photo
+     instead of behind it. Giving the sharp photo its own normal,
+     later-in-the-DOM element sidesteps that entirely: it always
+     paints after (so on top of) canvasBlurBg, transform or not. */
+  #canvasFg{
+    position:absolute;
+    inset:0;
+    background-size:contain;
+    background-position:center;
+    background-repeat:no-repeat;
+    pointer-events:none;
   }
   input{border-radius:15px;}
 /* boxesN / newBoxN now live INSIDE #canvas, so these coordinates are
@@ -367,6 +382,7 @@ body.viewerMode #controls > br{
 <div id="canvasWrap">
 <div id ="canvas">
   <div id="canvasBlurBg"></div>
+  <div id="canvasFg"></div>
   <div id="pageIndicator"></div>
   <section id ="box">
    <div id ="boxes1"></div>
@@ -1231,7 +1247,8 @@ el.style.cssText = state ? state.style :"";
 
 function loadPage(index){
 clearBubble();
-canvas.style.backgroundImage = store[index] ? `url("${store[index]}")` : "none";
+const canvasFg = document.getElementById("canvasFg");
+if(canvasFg) canvasFg.style.backgroundImage = store[index] ? `url("${store[index]}")` : "none";
 const blurBg = document.getElementById("canvasBlurBg");
 if(blurBg) blurBg.style.backgroundImage = store[index] ? `url("${store[index]}")` : "none";
 pageIndicator.textContent = store.length ? `Page ${index+1} of ${store.length}` : "";
