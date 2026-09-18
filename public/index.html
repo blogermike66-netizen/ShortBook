@@ -12,6 +12,16 @@ body{
 background:linear-gradient(135deg,#f6f9fc,#e9eef5);
 }
 #cointener{margin-left:340px;}
+  /* Same rounded, shadowed "snug box" framing that #canvasWrap already
+     gets on phone (see the phone media query below) - just applied
+     here too so the box looks the same on desktop. Nothing else on
+     this page changes. */
+  #canvasWrap{
+    display:inline-block;
+    border-radius:15px;
+    overflow:hidden;
+    box-shadow:0 6px 16px rgba(0,0,0,0.18);
+  }
   #canvas{
   border:3px solid lightblue;
   height:450px;
