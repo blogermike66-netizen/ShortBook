@@ -3,10 +3,6 @@ const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
 const path = require("path");
-const fs = require("fs");
-const fsp = require("fs/promises");
-const crypto = require("crypto");
-const { MsEdgeTTS, OUTPUT_FORMAT } = require("msedge-tts");
 
 const app = express();
 app.use(cors());
@@ -127,86 +123,6 @@ app.delete("/api/books/:id", requireAdmin, async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Failed to delete book" });
-  }
-});
-
-// ---------------------------------------------------------------
-// TEXT-TO-SPEECH: same natural voice for every visitor.
-// ---------------------------------------------------------------
-// index.html used to just ask the visitor's own browser to read the
-// bubbles aloud (window.speechSynthesis) - so whoever was reading only
-// ever heard whatever handful of voices THEIR device happened to have
-// installed. Ava/Andrew/Brian/William etc only exist as system voices
-// on Windows+Edge, which is why they only ever showed up on one PC.
-// This route generates the actual audio ON THE SERVER (using the free,
-// no-key-required Microsoft Edge "Read Aloud" voice service via the
-// msedge-tts package), so every device gets the identical natural
-// voice, and it's cached to disk so the same line is never re-generated.
-const TTS_CACHE_DIR = path.join(__dirname, "tts-cache");
-if (!fs.existsSync(TTS_CACHE_DIR)) fs.mkdirSync(TTS_CACHE_DIR);
-
-// Friendly dropdown names -> real Microsoft neural voice IDs. Add more
-// here any time (https://github.com/rany2/edge-tts lists the full set)
-// - the dropdown in index.html just needs a matching <option value>.
-const VOICE_MAP = {
-  ava: "en-US-AvaNeural",
-  andrew: "en-US-AndrewNeural",
-  brian: "en-US-BrianNeural",
-  william: "en-AU-WilliamNeural",
-  jenny: "en-US-JennyNeural",
-  guy: "en-US-GuyNeural",
-  sonia: "en-GB-SoniaNeural",
-  ryan: "en-GB-RyanNeural",
-};
-const DEFAULT_VOICE = "ava";
-const MAX_TTS_CHARS = 600; // one speech bubble's worth - keeps requests/cache files small
-
-app.post("/api/tts", async (req, res) => {
-  try {
-    const { text, voice } = req.body || {};
-    if (!text || typeof text !== "string" || !text.trim()) {
-      return res.status(400).json({ error: "No text to speak" });
-    }
-    if (text.length > MAX_TTS_CHARS) {
-      return res.status(400).json({ error: "That line is too long to read aloud" });
-    }
-    const edgeVoice = VOICE_MAP[voice] || VOICE_MAP[DEFAULT_VOICE];
-
-    // Cache key covers the exact voice + exact text, so the same line
-    // spoken by the same character is only ever generated once, ever.
-    const cacheKey = crypto.createHash("sha1").update(`${edgeVoice}|${text}`).digest("hex");
-    const cacheFile = path.join(TTS_CACHE_DIR, `${cacheKey}.mp3`);
-
-    if (fs.existsSync(cacheFile)) {
-      res.set("Content-Type", "audio/mpeg");
-      res.set("Cache-Control", "public, max-age=31536000, immutable");
-      return fs.createReadStream(cacheFile).pipe(res);
-    }
-
-    const tts = new MsEdgeTTS();
-    await tts.setMetadata(edgeVoice, OUTPUT_FORMAT.AUDIO_24KHZ_48KBITRATE_MONO_MP3);
-    const { audioStream } = await tts.toStream(text);
-
-    const chunks = [];
-    audioStream.on("data", (chunk) => chunks.push(chunk));
-    audioStream.on("end", async () => {
-      const buffer = Buffer.concat(chunks);
-      try {
-        await fsp.writeFile(cacheFile, buffer);
-      } catch (writeErr) {
-        console.error("Couldn't cache TTS audio (it'll still play, just won't be cached):", writeErr);
-      }
-      res.set("Content-Type", "audio/mpeg");
-      res.set("Cache-Control", "public, max-age=31536000, immutable");
-      res.send(buffer);
-    });
-    audioStream.on("error", (streamErr) => {
-      console.error("TTS stream error:", streamErr);
-      if (!res.headersSent) res.status(500).json({ error: "Text-to-speech failed" });
-    });
-  } catch (err) {
-    console.error("TTS error:", err);
-    if (!res.headersSent) res.status(500).json({ error: "Text-to-speech failed" });
   }
 });
 
