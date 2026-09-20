@@ -3,83 +3,121 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>shortbook</title>
+  <title>Short Book</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-  
- *{margin:0;padding:0;box-sizing:border-box;font-family:Segoe UI, sans-serif;}
-body{
-  min-height:100vh;
-background:linear-gradient(135deg,#f6f9fc,#e9eef5);
+
+/* ============ TOKENS — reads off the actual content: a hand-lettered
+   storybook, not a SaaS dashboard. Warm paper, ink, and two character
+   colors (teal / marigold) instead of one repeated accent. ============ */
+:root{
+  --paper:#F5EFE1;
+  --paper-line:#DAD0AE;
+  --ink:#211E1A;
+  --ink-soft:#6B6154;
+  --teal:#1F7A6C;
+  --teal-deep:#155A50;
+  --teal-tint:#E4F0EC;
+  --marigold:#C97A1D;
+  --marigold-deep:#9C5E13;
+  --marigold-tint:#FBEEDC;
+  --crimson:#A6333B;
+  --crimson-tint:#F7E7E5;
+  --white:#FFFFFF;
+  --whatsapp:#25D366;
+  --whatsapp-deep:#1DA851;
 }
-#cointener{margin-left:340px;}
-  #canvas{
-  border:3px solid lightblue;
+
+*{box-sizing:border-box;}
+body{
+  margin:0;
+  font-family:'Inter',sans-serif;
+  color:var(--ink);
+  background:var(--paper);
+  min-height:100vh;
+  padding:0 0 60px;
+}
+h1,h2{font-family:'Baloo 2',sans-serif;}
+button, select, textarea{font-family:inherit;}
+a{color:inherit;}
+
+/* ============ TITLE ============ */
+.titlebar{
+  padding:30px 40px 4px;
+  display:flex;
+  align-items:baseline;
+  gap:14px;
+  flex-wrap:wrap;
+}
+.titlebar h1{
+  font-size:32px;
+  font-weight:800;
+  color:var(--ink);
+  border-bottom:4px solid var(--teal);
+  padding-bottom:2px;
+}
+#bookTitleBanner{
+  display:none;
+  font-weight:600;
+  color:var(--ink-soft);
+  font-size:14px;
+}
+#bookTitleBanner a{color:var(--teal-deep);text-decoration:none;font-weight:700;}
+#bookTitleBanner a:hover{text-decoration:underline;}
+body.viewerMode #bookTitleBanner{ display:block; }
+
+/* ============ WORKSPACE — canvas on the left, script sheet on the
+   right, so the two feel like different objects rather than
+   identical stacked cards. ============ */
+#cointener{
+  display:grid;
+  grid-template-columns:700px minmax(280px,380px);
+  gap:32px;
+  align-items:start;
+  max-width:1180px;
+  margin:24px auto 0;
+  padding:0 40px;
+}
+
+/* ---- Stage (canvas) ---- */
+#canvasWrap{ width:700px; }
+#canvas{
+  border:10px solid var(--white);
+  outline:3px solid var(--ink);
+  outline-offset:-1px;
+  border-radius:4px;
   height:450px;
   width:700px;
-  border-radius:15px;
   background-color:#eee;
   position:relative;
   overflow:hidden;
-  }
-  /* Sits behind the real picture and fills the whole box with a
-     blurred, zoomed-in copy of the same image. This way the actual
-     photo (on #canvasFg, using "contain") is never cropped -
-     you always see the whole thing - but there's no empty gap around
-     it either, because the blurred copy fills in the edges. */
-  #canvasBlurBg{
-    position:absolute;
-    inset:0;
-    background-size:cover;
-    background-position:center;
-    background-repeat:no-repeat;
-    filter:blur(18px) brightness(0.85);
-    transform:scale(1.15); /* hides the blurred edge softening/halo */
-    z-index:-1;
-  }
-  /* The actual sharp photo. This used to just be #canvas's own CSS
-     background, sitting "under" #canvasBlurBg via z-index:-1 - which
-     only works when #canvas has no transform of its own. On phone,
-     #canvas gets a scale() transform (see fitCanvasScale), and a
-     transform creates a new stacking context, which traps the -1
-     blur layer INSIDE #canvas instead of letting it escape behind
-     everything - so it ends up painted on top of the sharp photo
-     instead of behind it. Giving the sharp photo its own normal,
-     later-in-the-DOM element sidesteps that entirely: it always
-     paints after (so on top of) canvasBlurBg, transform or not. */
-  #canvasFg{
-    position:absolute;
-    inset:0;
-    background-size:contain;
-    background-position:center;
-    background-repeat:no-repeat;
-    pointer-events:none;
-  }
-  input{border-radius:15px;}
-/* boxesN / newBoxN now live INSIDE #canvas, so these coordinates are
-   relative to the 700x450 canvas itself, not the page. This is what
-   keeps the speech bubbles lined up with the photo at every size. */
+  box-shadow:0 8px 18px rgba(33,30,26,0.16);
+}
+#canvasBlurBg{
+  position:absolute;
+  inset:0;
+  background-size:cover;
+  background-position:center;
+  background-repeat:no-repeat;
+  filter:blur(18px) brightness(0.85);
+  transform:scale(1.15);
+  z-index:-1;
+}
+#canvasFg{
+  position:absolute;
+  inset:0;
+  background-size:contain;
+  background-position:center;
+  background-repeat:no-repeat;
+  pointer-events:none;
+}
 #newBox1,#newBox2,#newBox3,#newBox5{position:absolute;top:20px;right:20px;}
-  #boxes1,#boxes2,#boxes3,#boxes5{
-  position:absolute;
-  top:20px;
-  left:20px;
-  }
-  
- #boxes4{
-  position:absolute;
-  top:0px;
-  left:0px;
-  border-radius:15px;
-  } 
-  
-  #newBox4{
-  position:absolute;
-  top:375px;
-  left:-5px;
-  border-radius:15px;
-  } 
-  
-    #newBox6{
+#boxes1,#boxes2,#boxes3,#boxes5{position:absolute;top:20px;left:20px;}
+#boxes4{position:absolute;top:0px;left:0px;border-radius:15px;}
+#newBox4{position:absolute;top:375px;left:-5px;border-radius:15px;}
+#newBox6{
   background-image:url('comic-speech-bubble-hand-drawn.png');
   position:absolute;
   top:380px;
@@ -87,167 +125,265 @@ background:linear-gradient(135deg,#f6f9fc,#e9eef5);
   border-radius:15px;
   height:100px;
   background-color:blue;
-  }
-  
-  
-   h1{
- color:lightgreen;
- }
- #player1,#player2{
- width:170px;
- height:50px;
- word-break:break-all;
- border-radius:5px;
- font-weight:bold;
- }
- #player1Choice1,#player1Choice2,#player1Choice3,
- #player2Choice1,#player2Choice2,
- #player2Choice3{height:38px;font-weight:bold; border:1px solid ; border-radius:15px;}
- #player1Choice1,#player2Choice1{background-color:lightgreen;border-color:green; color:lightblack;}
-  #player1Choice2,#player2Choice2{background-color:lightblue; border-color:blue;color:blue;}
-   #player1Choice3,#player2Choice3{background-color:mistyrose;border-color:pink;color:violet;}
-   #player1Choice4{background-color:lightgreen;border-color:green; color:lightblack;}
-   #player1Choice5{background-color:lightgreen;border-color:green; color:lightblack;}
-    #edit1,#edit2{width:60px;height:30px;border-radius:10px; border:1px solid; background-color:whitesmoke; border-color:whitesmoke;font-weight:bold;}
-	#player2Choice4{background-color:lightgreen;border-color:green; color:lightblack;}
-	#player2Choice5{background-color:lightgreen;border-color:green; color:lightblack;}
-	 #clear1,#clear2{width:60px;height:30px;border-radius:10px; border:1px solid; background-color:darkorange; border-color:whitesmoke;font-weight:bold; color:green;}
-	 .console1{position:absolute;top:170px;left:220px;display:grid;
-	 grid-template-columns:repeat(2,50px);
-	  grid-template-rows:repeat(2,50px);
-	 }
-	 .console2{position:absolute;top:170px;right:180px;display:grid;
-	 grid-template-columns:repeat(2,50px);
-	  grid-template-rows:repeat(2,50px);
-	  }
-	  
-	  #up1,#up2{
-	  background-color:lightgreen;cursor:pointer;}
-	  #down1,#down2{background-color:lightblue;cursor:pointer;}
-	  #left1,#left2{background-color:mistyrose;cursor:pointer;}
-	  #right1,#right2{background-color:whitesmoke;cursor:pointer;}
-	  
-	   	#up1:hover,#up2:hover{background-color:green;}
-	  #down1:hover,#down2:hover{background-color:blue;}
-	  #left1:hover,#left2:hover{background-color:pink;}
-	  #right1:hover,#right2:hover{background-color:white;}
-	  #pushbtn1,#pushbtn2{width:60px;height:30px;border-radius:10px; border:1px solid; background-color:purple; border-color:purple;font-weight:bold; color:lightgreen;}
-	  .pages{position:relative;bottom:auto;margin-top:20px;display:flex;gap:20px;flex-wrap:wrap;}
-	  #previous{width:110px;height:30px;border-radius:10px;border:1px solid;background-color:whitesmoke; border-color:whitesmoke;font-weight:bold;color:purple;}
-	  #del{width:110px;height:30px;border-radius:10px;border:1px solid;background-color:red; border-color:white;font-weight:bold;color:white;}
-	  #next{width:110px;height:30px;border-radius:10px;border:1px solid;background-color:skyblue; border-color:white;font-weight:bold;color:white;}
-	  #review{width:150px;height:30px;border-radius:10px;border:1px solid;background-color:purple; border-color:white;font-weight:bold;color:white;}
-	  #pdfBtn{width:170px;height:30px;border-radius:10px;border:1px solid;background-color:darkgreen; border-color:white;font-weight:bold;color:white;cursor:pointer;}
-	  #pdfBtn:disabled{opacity:0.5;cursor:wait;}
-	  #saveImgBtn{width:150px;height:30px;border-radius:10px;border:1px solid;background-color:teal; border-color:white;font-weight:bold;color:white;cursor:pointer;}
-	  #saveImgBtn:disabled{opacity:0.5;cursor:wait;}
-	  .pointerBtn{background-color:#ffd166;border-color:#e0a800;color:#5a3d00;}
-	  .arrowBtn{background-color:#ff8fa3;border-color:#c9184a;color:white;}
-	  /* small "pointer" bubble: a tiny circle with a shrinking tail, used to
-	     mark/point at a specific character in the picture */
-	  .pointerMark{
-	    position:absolute;
-	    width:26px;height:26px;
-	    border:2px solid var(--ink,#1a1a1a);
-	    border-radius:50%;
-	    background:white;
-	    cursor:grab;
-	    z-index:20;
-	  }
-	  .pointerMark::after{
-	    content:"";
-	    position:absolute;
-	    bottom:-10px; left:2px;
-	    width:0;height:0;
-	    border:6px solid transparent;
-	    border-top-color:white;
-	  }
-	  .pointerMark::before{
-	    content:"";
-	    position:absolute;
-	    bottom:-13px; left:0px;
-	    width:0;height:0;
-	    border:8px solid transparent;
-	    border-top-color:#1a1a1a;
-	  }
-	  /* draggable arrow that can be rotated to point toward a character */
-	  .arrowMark{
-	    position:absolute;
-	    font-size:34px;
-	    line-height:1;
-	    color:#1a1a1a;
-	    cursor:grab;
-	    user-select:none;
-	    z-index:20;
-	  }
-	  .rotateHandle{
-	    position:absolute;
-	    width:22px;height:22px;
-	    border-radius:50%;
-	    background:purple;
-	    color:white;
-	    font-size:12px;
-	    display:flex;align-items:center;justify-content:center;
-	    cursor:pointer;
-	    z-index:21;
-	  }
-	  #pageIndicator{position:absolute;top:-30px;left:0;font-weight:bold;color:#555;}
-	  #voicePanel{display:flex;align-items:center;gap:15px;flex-wrap:wrap;margin-top:15px;padding:10px;background:white;border-radius:10px;border:1px solid #ccc;}
-	  @keyframes bubblePulse{
-	    0%,100%{ box-shadow:0 0 0 3px gold, 0 0 16px 4px rgba(255,215,0,0.7); }
-	    50%{ box-shadow:0 0 0 5px gold, 0 0 24px 8px rgba(255,215,0,0.9); }
-	  }
-	  .speakingBubble{
-	    animation:bubblePulse 0.9s ease-in-out infinite;
-	    position:relative;
-	    z-index:5;
-	  }
-	  .voicePicker{display:flex;flex-direction:column;font-size:13px;font-weight:bold;color:#333;}
-	  .voicePicker select{margin-top:4px;height:34px;border-radius:8px;border:1px solid #aaa;padding:0 6px;min-width:170px;}
-	  #playStoryBtn{height:38px;border-radius:10px;border:1px solid green;background-color:lightgreen;font-weight:bold;cursor:pointer;padding:0 14px;}
-	  #stopStoryBtn{height:38px;border-radius:10px;border:1px solid darkred;background-color:mistyrose;color:darkred;font-weight:bold;cursor:pointer;padding:0 14px;}
-	  #playStoryBtn:disabled,#stopStoryBtn:disabled{opacity:0.5;cursor:not-allowed;}
-	  #readingMusicToggle{height:38px;border-radius:10px;border:1px solid #7a5cd6;background-color:#efe9ff;color:#4a2fae;font-weight:bold;cursor:pointer;padding:0 14px;}
-	  #readingMusicToggle.on{background-color:#7a5cd6;color:white;}
-	 footer{position:relative;margin-left:-340px;margin-top:60px;color:white;background-color:black;width:100vw;min-height:100px;padding:20px;}
-	 nav ul,footer ul{
-	 list-style:none;
-	 display:flex;
-	 flex-wrap:wrap;
-	 flex-direction:row;
-	 gap:50px;
-	 
-	 }
-	 ul a{
-color:white;
-font-size:15px;
-	 }
-	 ul a:hover{
-	 color:skyblue;
-	 }
+}
+#pageIndicator{
+  position:absolute;
+  top:-28px;
+  left:2px;
+  font-weight:700;
+  font-size:13px;
+  color:var(--ink-soft);
+}
+
+/* Page controls, docked right under the stage like a film-strip toolbar */
+.page-actions{
+  margin-top:14px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+}
+.page-actions button{
+  height:38px;
+  padding:0 16px;
+  border-radius:8px;
+  font-weight:700;
+  font-size:14px;
+  cursor:pointer;
+  border:1.5px solid var(--ink);
+  background:var(--white);
+  color:var(--ink);
+}
+.page-actions button:hover{background:var(--paper);}
+#next{background:var(--teal);border-color:var(--teal-deep);color:var(--white);}
+#next:hover{background:var(--teal-deep);}
+#del{border-color:var(--crimson);color:var(--crimson);}
+#del:hover{background:var(--crimson-tint);}
+#pdfBtn{background:var(--ink);border-color:var(--ink);color:var(--white);}
+#pdfBtn:hover{background:#3a352d;}
+#pdfBtn:disabled,#saveImgBtn:disabled{opacity:0.55;cursor:wait;}
+
+/* ---- Script sheet (controls) ---- */
+#controls{
+  background:var(--white);
+  border:1px solid var(--paper-line);
+  border-left:6px solid var(--ink);
+  border-radius:4px 14px 14px 4px;
+  padding:22px 22px 26px;
+  display:flex;
+  flex-direction:column;
+  gap:22px;
+}
+.char-section{
+  padding-left:14px;
+  border-left:3px solid var(--section-color, var(--teal));
+}
+.char-section h2{
+  font-size:16px;
+  color:var(--section-color, var(--teal-deep));
+  margin:0 0 10px;
+}
+.char-section textarea{
+  width:100%;
+  min-height:56px;
+  border:1.5px solid var(--paper-line);
+  border-radius:8px;
+  padding:10px 12px;
+  font-size:14px;
+  color:var(--ink);
+  resize:vertical;
+  margin-bottom:10px;
+}
+.char-section textarea:focus{outline:none;border-color:var(--section-color, var(--teal));}
+.bubble-row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-bottom:10px;
+}
+.bubble-row button{
+  height:34px;
+  padding:0 13px;
+  border-radius:999px;
+  border:1.5px solid var(--section-color, var(--teal));
+  background:var(--white);
+  color:var(--section-color-deep, var(--teal-deep));
+  font-size:13px;
+  font-weight:700;
+  cursor:pointer;
+}
+.bubble-row button:hover{background:var(--section-tint, var(--teal-tint));}
+
+.tool-row{
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:8px;
+}
+.pointerBtn,.arrowBtn{
+  height:34px;
+  padding:0 12px;
+  border-radius:8px;
+  font-size:13px;
+  font-weight:700;
+  cursor:pointer;
+  border:1.5px solid;
+}
+.pointerBtn{background:var(--marigold-tint);border-color:var(--marigold);color:var(--marigold-deep);}
+.arrowBtn{background:var(--crimson-tint);border-color:var(--crimson);color:var(--crimson);}
+#clear1,#clear2{
+  height:34px;
+  padding:0 12px;
+  border-radius:8px;
+  border:1.5px solid var(--ink-soft);
+  background:var(--white);
+  color:var(--ink-soft);
+  font-weight:700;
+  font-size:13px;
+  cursor:pointer;
+}
+
+/* Nudge pad — now sits in normal flow next to the tools instead of
+   floating at an absolute page position. */
+.console1,.console2{
+  display:inline-grid;
+  grid-template-columns:repeat(3,28px);
+  grid-template-rows:repeat(2,28px);
+  gap:2px;
+  margin-left:4px;
+}
+.console1 button,.console2 button{
+  font-size:12px;
+  border:1px solid var(--paper-line);
+  background:var(--paper);
+  cursor:pointer;
+  border-radius:4px;
+}
+#up1,#up2{grid-column:2;grid-row:1;background:var(--teal-tint);}
+#left1,#left2{grid-column:1;grid-row:2;background:var(--marigold-tint);}
+#right1,#right2{grid-column:3;grid-row:2;background:var(--marigold-tint);}
+#down1,#down2{grid-column:2;grid-row:2;background:var(--teal-tint);}
+#up1:hover,#up2:hover,#down1:hover,#down2:hover{background:var(--teal);color:var(--white);}
+#left1:hover,#left2:hover,#right1:hover,#right2:hover{background:var(--marigold);color:var(--white);}
+
+/* ---- Voice / playback ---- */
+#voicePanel{
+  display:flex;
+  align-items:flex-end;
+  gap:16px;
+  flex-wrap:wrap;
+  padding-top:16px;
+  border-top:1px dashed var(--paper-line);
+}
+#audioHint{width:100%;margin:0 0 4px;font-size:12.5px;color:var(--ink-soft);}
+.voicePicker{display:flex;flex-direction:column;font-size:12.5px;font-weight:700;color:var(--ink-soft);gap:4px;}
+.voicePicker select{height:34px;border-radius:8px;border:1.5px solid var(--paper-line);padding:0 8px;min-width:160px;}
+#playStoryBtn{height:38px;border-radius:8px;border:1.5px solid var(--teal-deep);background:var(--teal);color:var(--white);font-weight:700;cursor:pointer;padding:0 14px;}
+#stopStoryBtn{height:38px;border-radius:8px;border:1.5px solid var(--crimson);background:var(--white);color:var(--crimson);font-weight:700;cursor:pointer;padding:0 14px;}
+#playStoryBtn:disabled,#stopStoryBtn:disabled{opacity:0.5;cursor:not-allowed;}
+#readingMusicToggle{height:34px;border-radius:8px;border:1.5px solid var(--marigold);background:var(--marigold-tint);color:var(--marigold-deep);font-weight:700;cursor:pointer;padding:0 12px;}
+#readingMusicToggle.on{background:var(--marigold);color:var(--white);}
+
+@keyframes bubblePulse{
+  0%,100%{ box-shadow:0 0 0 3px gold, 0 0 16px 4px rgba(255,215,0,0.7); }
+  50%{ box-shadow:0 0 0 5px gold, 0 0 24px 8px rgba(255,215,0,0.9); }
+}
+.speakingBubble{
+  animation:bubblePulse 0.9s ease-in-out infinite;
+  position:relative;
+  z-index:5;
+}
+.pointerMark{
+  position:absolute;
+  width:26px;height:26px;
+  border:2px solid var(--ink,#1a1a1a);
+  border-radius:50%;
+  background:white;
+  cursor:grab;
+  z-index:20;
+}
+.pointerMark::after{
+  content:"";
+  position:absolute;
+  bottom:-10px; left:2px;
+  width:0;height:0;
+  border:6px solid transparent;
+  border-top-color:white;
+}
+.pointerMark::before{
+  content:"";
+  position:absolute;
+  bottom:-13px; left:0px;
+  width:0;height:0;
+  border:8px solid transparent;
+  border-top-color:#1a1a1a;
+}
+.arrowMark{
+  position:absolute;
+  font-size:34px;
+  line-height:1;
+  color:#1a1a1a;
+  cursor:grab;
+  user-select:none;
+  z-index:20;
+}
+.rotateHandle{
+  position:absolute;
+  width:22px;height:22px;
+  border-radius:50%;
+  background:var(--marigold-deep);
+  color:white;
+  font-size:12px;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;
+  z-index:21;
+}
+
+/* ============ WHATSAPP FAB ============ */
+.whatsapp-fab{
+  position:fixed;
+  right:24px;
+  bottom:24px;
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  background:var(--whatsapp);
+  color:var(--white);
+  padding:14px 20px;
+  border-radius:999px;
+  font-weight:700;
+  font-size:15px;
+  text-decoration:none;
+  box-shadow:0 6px 16px rgba(37,211,102,0.4);
+  z-index:50;
+}
+.whatsapp-fab:hover{background:var(--whatsapp-deep);}
+
+/* ============ FOOTER ============ */
+footer{
+  margin-top:44px;
+  padding:32px 40px;
+  background:var(--ink);
+  color:#EDE7DB;
+}
+.footer-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:26px;
+  max-width:900px;
+  margin:0 auto;
+}
+.footer-col h3{font-size:13px;color:#B7AD96;margin:0 0 10px;font-weight:700;}
+.footer-col ul{list-style:none;display:flex;flex-direction:column;gap:8px;margin:0;padding:0;}
+.footer-col a{color:#EDE7DB;font-size:14px;text-decoration:none;}
+.footer-col a:hover{color:var(--marigold);}
+.footer-bottom{text-align:center;margin-top:24px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.1);font-size:12px;color:#A79E88;}
 
 /* ================= READER / VIEW MODE ================= */
-/* When opened from the shop (?book=ID), the page becomes a read-only
-   reader: no editing controls, and the canvas itself ignores clicks
-   so a visitor can't accidentally erase or drag a speech bubble. */
-#bookTitleBanner{
-  display:none;
-  margin-left:340px;
-  margin-top:-10px;
-  margin-bottom:14px;
-  font-weight:bold;
-  color:#555;
-}
-#bookTitleBanner a{color:#2A6FDB;text-decoration:none;}
-#bookTitleBanner a:hover{text-decoration:underline;}
-body.viewerMode #bookTitleBanner{ display:block; }
-
 body.viewerMode #canvas,
 body.viewerMode #canvas *{
   pointer-events:none !important;
   cursor:default !important;
 }
-
 body.viewerMode #player1,
 body.viewerMode #player2,
 body.viewerMode #controls > label,
@@ -267,17 +403,15 @@ body.viewerMode #controls > br{
 
 /* ================= PHONE ================= */
 @media (max-width: 760px){
-  body{ padding:20px 14px 40px; }
-  h1{ text-align:center; }
-  body > a[href="premium"]{ display:block; text-align:center; }
-  #bookTitleBanner{ margin-left:0; text-align:center; }
+  .titlebar{ padding:22px 18px 4px; justify-content:center; text-align:center; }
 
   #cointener{
-    margin-left:0;
     display:flex;
     flex-direction:column;
     align-items:center;
     gap:16px;
+    padding:0 16px;
+    margin-top:16px;
   }
 
   #canvasWrap{
@@ -288,96 +422,49 @@ body.viewerMode #controls > br{
     max-width:420px;
     aspect-ratio:700 / 450;
     overflow:hidden;
-    border-radius:15px;
+    border-radius:10px;
     box-shadow:0 6px 16px rgba(0,0,0,0.18);
   }
-
   #canvas{
     width:700px;
     height:450px;
     transform-origin:top left;
   }
 
+  .page-actions{ width:100%; max-width:420px; }
+  .page-actions button{ flex:1 1 45%; }
+
   #controls{
     width:100%;
     max-width:420px;
-    display:flex;
-    flex-direction:column;
-    align-items:stretch;
-    gap:4px;
-    background:white;
     border-radius:14px;
-    padding:16px;
-    box-shadow:0 3px 10px rgba(0,0,0,0.08);
-  }
-  #controls br{ display:none; }
-  #controls label{
-    display:block;
-    font-size:12px;
-    font-weight:bold;
-    color:#666;
-    text-transform:uppercase;
-    letter-spacing:0.5px;
-    margin-top:10px;
-    text-align:center;
-  }
-  #player1,#player2{
-    width:100%;
-    height:70px;
-  }
-  .pointerBtn,.arrowBtn,#clear1,#clear2,
-  [id^="player1Choice"],[id^="player2Choice"]{
-    width:100%;
-    min-height:42px;
-    margin:3px 0;
   }
 
-  .console1,.console2{
-    position:static;
-    margin:10px auto 4px;
+  .char-section textarea{ min-height:64px; }
+  .bubble-row button, .pointerBtn, .arrowBtn, #clear1, #clear2{
+    flex:1 1 auto;
   }
 
-  .pages{
-    position:relative;
-    width:100%;
-    max-width:420px;
-    justify-content:center;
-  }
-  .pages button{
-    flex:1 1 45%;
-    min-height:42px;
-  }
-
-  #voicePanel{
-    width:100%;
-    max-width:420px;
-    justify-content:center;
-  }
+  #voicePanel{ width:100%; }
   .voicePicker{ width:100%; }
   .voicePicker select{ width:100%; min-width:0; }
   #playStoryBtn,#stopStoryBtn{ flex:1 1 45%; }
 
-  footer{
-    position:relative;
-    margin-left:0;
-    margin-top:30px;
-    width:100%;
-    padding:16px 12px;
-  }
-  footer ul{
-    justify-content:center;
-    text-align:center;
-    gap:16px;
-  }
+  .whatsapp-fab{ right:16px; bottom:16px; padding:12px 16px; font-size:14px; }
+  footer{ padding:26px 18px; }
+  .footer-grid{ grid-template-columns:1fr; gap:20px; }
 }
 
-</style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
-<h1>Short Book</h1>
-<div id="bookTitleBanner"><a href="shop.html">← Shop</a> · <span id="bookTitleText"></span></div>
+<div class="titlebar">
+  <h1>Short Book</h1>
+  <div id="bookTitleBanner"><a href="shop.html">← Shop</a> · <span id="bookTitleText"></span></div>
+</div>
+
 <div id="cointener">
 <div id="canvasWrap">
 <div id ="canvas">
@@ -400,69 +487,66 @@ body.viewerMode #controls > br{
 	  <div id ="newBox5"></div>
 	 </section>
 </div>
-</div><br>
- 
-  <div id="controls">
-     <label>Character1</label><br>
-  <textarea id="player1"></textarea>
-   <label>SpeechBubble</label>
-  <button id ="player1Choice1">SpeechBubble</button>
-   <label>ThoughtBubble</label>
-  <button id ="player1Choice2">ThoughtBubble</button>
-   <label>NarrativeBubble</label>
-  <button id ="player1Choice3" >NarrativeBubble</button><br>
-   <label>headingBubble</label>
-  <button id ="player1Choice4" >headingBubble</button>
-   <label>Normalspeech</label>
-  <button id ="player1Choice5" >Normalspeech</button>
-   <label>Point at a character</label>
-  <button id ="pointerBtn1" class="pointerBtn">📍 Pointer</button>
-  <button id ="arrowBtn1" class="arrowBtn">➤ Arrow</button>
-  <button id="clear1">Clear</button>
-  <div class ="console1">
-  <button id ="up1">⬆</button>
-  <button id ="left1">⬅</button>
-  <button id ="right1">➡</button> 
-  <button id ="down1">⬇</button>
-  </div>
-<br>
-
-  
-   <label>Character2</label><br>
-   <textarea id="player2"></textarea>
-   <label>SpeechBubble</label>
-  <button id ="player2Choice1" >SpeechBubble</button>
-   <label>ThoughtBubble</label>
-  <button id ="player2Choice2" >ThoughtBubble</button>
-   <label>NarrativeBubble</label>
-  <button id ="player2Choice3" >NarrativeBubble</button>
-  <label>headingBubble</label>
-  <button id ="player2Choice4" >headingBubble</button>
-   <label>Normalspeech</label>
-  <button id ="player2Choice5" >Normalspeech</button>
-   <label>Point at a character</label>
-  <button id ="pointerBtn2" class="pointerBtn">📍 Pointer</button>
-  <button id ="arrowBtn2" class="arrowBtn">➤ Arrow</button>
-  <button  id ="clear2" >Clear</button>
-  <div class ="console2">
-  <button id ="up2">⬆</button>
-  <button id ="left2">⬅</button>
-  <button id ="right2">➡</button> 
-  <button id ="down2">⬇</button>
-  </div>
-
-   
-   <div class ="pages">
-   <button id ="previous">previous</button>
-     <button  id ="del" >delete</button>
+<div class="page-actions">
+   <button id ="previous">Previous</button>
+   <button id ="del">Delete page</button>
    <button id ="next">NEXT</button>
    <button id ="review">Panels ▶</button>
    <button id ="pdfBtn">⬇ Download PDF</button>
    <button id ="saveImgBtn">🖼 Save Image</button>
-   </div>
+</div>
+</div>
+
+  <div id="controls">
+
+    <div class="char-section" style="--section-color:var(--teal);--section-color-deep:var(--teal-deep);--section-tint:var(--teal-tint);">
+      <h2>Character 1</h2>
+      <textarea id="player1" placeholder="What does Character 1 say?"></textarea>
+      <div class="bubble-row">
+        <button id ="player1Choice1">Speech</button>
+        <button id ="player1Choice2">Thought</button>
+        <button id ="player1Choice3">Narrative</button>
+        <button id ="player1Choice4">Heading</button>
+        <button id ="player1Choice5">Plain text</button>
+      </div>
+      <div class="tool-row">
+        <button id ="pointerBtn1" class="pointerBtn">📍 Pointer</button>
+        <button id ="arrowBtn1" class="arrowBtn">➤ Arrow</button>
+        <button id="clear1">Clear</button>
+        <div class ="console1">
+          <button id ="up1">⬆</button>
+          <button id ="left1">⬅</button>
+          <button id ="right1">➡</button>
+          <button id ="down1">⬇</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="char-section" style="--section-color:var(--marigold);--section-color-deep:var(--marigold-deep);--section-tint:var(--marigold-tint);">
+      <h2>Character 2</h2>
+      <textarea id="player2" placeholder="What does Character 2 say?"></textarea>
+      <div class="bubble-row">
+        <button id ="player2Choice1">Speech</button>
+        <button id ="player2Choice2">Thought</button>
+        <button id ="player2Choice3">Narrative</button>
+        <button id ="player2Choice4">Heading</button>
+        <button id ="player2Choice5">Plain text</button>
+      </div>
+      <div class="tool-row">
+        <button id ="pointerBtn2" class="pointerBtn">📍 Pointer</button>
+        <button id ="arrowBtn2" class="arrowBtn">➤ Arrow</button>
+        <button  id ="clear2" >Clear</button>
+        <div class ="console2">
+          <button id ="up2">⬆</button>
+          <button id ="left2">⬅</button>
+          <button id ="right2">➡</button>
+          <button id ="down2">⬇</button>
+        </div>
+      </div>
+    </div>
 
    <div id="voicePanel">
-     <p id="audioHint" style="width:100%;margin:0 0 10px;font-size:13px;color:#555;">
+     <p id="audioHint">
        🎧 Choose whichever voices and background music sound best to you — pick what you enjoy, there's no wrong answer.
      </p>
      <div class="voicePicker">
@@ -497,31 +581,45 @@ body.viewerMode #controls > br{
      </div>
    </div>
 
-	 <div id ="typing"></div>
-	 <footer>
-	 <nav>
-	 <ul>
-	 <a href ="page1.html" >Home page</a>
-	 <a href ="comic-strip-studio.html" >draw page</a>
-	 <a href ="https://www.freeartgen.com/" >AI Generator</a>
-	 <a href ="https://www.magnific.com/free-vector/hand-drawn-frailejon-character-illustration_36186900.htm#fromView=search&page=1&position=5&uuid=2607fac7-ecc1-4ae1-967d-cfa363f838b8&track=ais_hybrid&query=funny+cartoon"
-     >cartoon character</a>
-	 <a href ="https://pixabay.com/" >manga Generator</a>
-	 <a href ="" >chibi Generator</a>
-	 <a href ="" >Edit page</a>
-	 <a href ="" >display page</a>
-	 <a href ="panel-view.html" >panel page</a>
-	 <a href ="about.html" >about</a>
-	 <a href ="policy.html" >policy</a>
-	 <a href ="" >Contact</a>
-	 <a href ="" >infomation</a>
-	 </ul>
-	 <nav>
-	 </footer>
+  </div>
+  </div>
 
+  <div id ="typing"></div>
+
+<a class="whatsapp-fab" href="https://wa.me/27643471665" target="_blank" rel="noopener">💬 Chat on WhatsApp</a>
+
+<footer>
+  <div class="footer-grid">
+    <div class="footer-col">
+      <h3>Create</h3>
+      <ul>
+        <li><a href="page1.html">Home page</a></li>
+        <li><a href="comic-strip-studio.html">Draw page</a></li>
+        <li><a href="panel-view.html">Panel page</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h3>Generators</h3>
+      <ul>
+        <li><a href="https://www.freeartgen.com/" target="_blank" rel="noopener">AI Generator</a></li>
+        <li><a href="https://pixabay.com/" target="_blank" rel="noopener">Manga Generator</a></li>
+        <li><a href="#">Cartoon Generator</a></li>
+        <li><a href="#">Chibi Generator</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h3>More</h3>
+      <ul>
+        <li><a href="about.html">About</a></li>
+        <li><a href="policy.html">Policy</a></li>
+        <li><a href="https://wa.me/27643471665" target="_blank" rel="noopener">Contact / WhatsApp</a></li>
+        <li><a href="#">Information</a></li>
+      </ul>
+    </div>
   </div>
-  </div>
-  
+  <div class="footer-bottom">© Short Book</div>
+</footer>
+
   <script>
  const player1 = document.getElementById("player1");
  const player2 = document.getElementById("player2");
@@ -1441,7 +1539,7 @@ const pdfBtn = document.getElementById("pdfBtn");
 
 // TODO: replace with your real WhatsApp number - digits only, country
 // code first, no "+", no spaces (e.g. South Africa 082 123 4567 -> "27821234567").
-const WHATSAPP_NUMBER = "27000000000";
+const WHATSAPP_NUMBER = "27643471665";
 
 if(viewMode){
   // Readers never generate their own PDF - it's a link into WhatsApp

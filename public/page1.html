@@ -1,32 +1,118 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+<meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>page1</title>  
-  <style>
+<title>Short Book</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
 
- *{margin:0;padding:0;box-sizing:border-box;font-family:Segoe UI, sans-serif;}
-body{
-  min-height:100vh;
-  background-image:url("download (4).jpg");
-    linear-gradient(160deg,#eef2f7,#dfe7ee 60%,#d8e2ec);
+/* ============ DESIGN TOKENS ============ */
+:root{
+  --paper:#FBF6EC;
+  --paper-edge:#E7DCC5;
+  --ink:#223047;
+  --ink-soft:#64707E;
+  --blue:#2A6FDB;
+  --blue-deep:#1B4FA0;
+  --blue-tint:#EAF1FC;
+  --coral:#FF6B4A;
+  --coral-deep:#E14E2C;
+  --white:#FFFFFF;
+  --whatsapp:#25D366;
+  --whatsapp-deep:#1DA851;
+  --radius-lg:20px;
+  --radius-md:14px;
+  --radius-sm:9px;
+  --shadow:0 4px 14px rgba(34,48,71,0.08);
 }
-#cointener{margin-left:340px;padding-bottom:60px;}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:'Inter',sans-serif;
+  color:var(--ink);
+  background-color:var(--paper);
+  background-image:
+    radial-gradient(circle at 15% 0%, var(--blue-tint) 0%, transparent 45%),
+    url("download (4).jpg");
+  background-repeat:no-repeat;
+  background-size:cover;
+  min-height:100vh;
+  padding-bottom:40px;
+}
+
+h1,h2,h3{font-family:'Baloo 2',sans-serif;}
+
+a{color:inherit;}
+
+/* ============ TOPBAR ============ */
+.topbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:28px 40px 8px;
+}
+.brand{
+  display:flex;
+  align-items:baseline;
+  gap:10px;
+}
+.brand h1{
+  font-size:34px;
+  font-weight:800;
+  color:var(--blue-deep);
+}
+.brand span{
+  font-size:14px;
+  color:var(--ink-soft);
+  font-weight:500;
+}
+.premium-badge{
+  background:var(--white);
+  border:1.5px solid var(--paper-edge);
+  color:var(--blue-deep);
+  font-weight:700;
+  font-size:13px;
+  padding:8px 18px;
+  border-radius:999px;
+  text-decoration:none;
+  box-shadow:var(--shadow);
+}
+.premium-badge:hover{border-color:var(--blue);}
+
+/* ============ LAYOUT ============ */
+.layout{
+  display:flex;
+  align-items:flex-start;
+  gap:28px;
+  padding:12px 40px 20px;
+}
+.main{
+  flex:1;
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  gap:20px;
+}
+
+/* ============ SIDEBAR ============ */
 #myBooksPanel{
-  position:absolute;
-  top:110px;
-  left:20px;
-  width:290px;
-  background:white;
-  border-radius:15px;
-  padding:16px;
-  box-shadow:0 3px 10px rgba(0,0,0,0.08);
+  width:270px;
+  flex-shrink:0;
+  background:var(--white);
+  border-radius:var(--radius-lg);
+  padding:20px;
+  box-shadow:var(--shadow);
+  position:sticky;
+  top:20px;
 }
 #myBooksPanel h2{
-  font-size:16px;
-  color:#2A6FDB;
-  margin-bottom:10px;
+  font-size:17px;
+  color:var(--blue-deep);
+  margin-bottom:14px;
 }
 #myBooksList{
   display:flex;
@@ -38,27 +124,27 @@ body{
   gap:10px;
   align-items:center;
   padding:8px;
-  border-radius:10px;
-  border:1px solid #e2e8f0;
+  border-radius:var(--radius-sm);
+  border:1px solid var(--paper-edge);
   text-decoration:none;
-  color:#333;
-  background:#f8fafc;
-  transition:transform .1s ease, box-shadow .1s ease;
+  color:var(--ink);
+  background:var(--paper);
+  transition:transform .12s ease, box-shadow .12s ease;
 }
 .bookThumb:hover{
   transform:translateY(-2px);
-  box-shadow:0 3px 8px rgba(0,0,0,0.12);
+  box-shadow:0 4px 10px rgba(0,0,0,0.10);
 }
 .bookThumb img{
   width:44px;height:44px;
   object-fit:cover;
   border-radius:8px;
-  border:1px solid #2A6FDB;
-  background:white;
+  border:1px solid var(--blue);
+  background:var(--white);
   flex-shrink:0;
 }
 .bookThumb span{
-  font-weight:bold;
+  font-weight:600;
   font-size:14px;
   flex:1;
   overflow:hidden;
@@ -68,475 +154,470 @@ body{
 #moreBooksBtn{
   display:block;
   text-align:center;
-  margin-top:12px;
-  padding:10px;
-  background:#2A6FDB;
-  color:white;
-  border-radius:10px;
-  font-weight:bold;
+  margin-top:14px;
+  padding:11px;
+  background:var(--blue);
+  color:var(--white);
+  border-radius:var(--radius-sm);
+  font-weight:700;
   text-decoration:none;
+  transition:background .12s ease;
 }
-#moreBooksBtn:hover{ background:#1b4fa0; }
+#moreBooksBtn:hover{ background:var(--blue-deep); }
 .noBooksMsg{
   font-size:13px;
-  color:#888;
+  color:var(--ink-soft);
   text-align:center;
-  padding:6px 0 2px;
+  padding:10px 0 2px;
 }
- #promp{
- border:2px solid;
- background-color:white;
- height:90px;
- width:700px;
- border-radius:15px
- }
 
-  #canvas{border:3px solid;height:450px;width:700px;border-radius:15px;background-color:white;}
+/* ============ CARDS ============ */
+.card{
+  background:var(--white);
+  border-radius:var(--radius-lg);
+  padding:24px;
+  box-shadow:var(--shadow);
+}
+.card h2{
+  font-size:19px;
+  color:var(--blue-deep);
+  margin-bottom:14px;
+}
 
-/* squares now render dynamically, but keep the original look */
+/* Prompt + preview */
+#promp{
+  width:100%;
+  min-height:80px;
+  border:2px solid var(--paper-edge);
+  border-radius:var(--radius-md);
+  padding:14px 16px;
+  font-family:'Inter',sans-serif;
+  font-size:15px;
+  color:var(--ink);
+  resize:vertical;
+  margin-bottom:16px;
+}
+#promp:focus{outline:none;border-color:var(--blue);}
+#canvas{
+  border:2px dashed var(--paper-edge);
+  border-radius:var(--radius-md);
+  min-height:220px;
+  background:var(--paper);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:var(--ink-soft);
+  font-size:14px;
+}
+#canvas::before{content:"Your story preview will appear here";}
+
+/* Upload row */
+.upload-row{
+  display:flex;
+  align-items:center;
+  gap:16px;
+  flex-wrap:wrap;
+  margin-bottom:18px;
+}
+.file-btn{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  height:46px;
+  padding:0 20px;
+  color:var(--blue-deep);
+  background:var(--blue-tint);
+  border:2px solid var(--blue);
+  border-radius:var(--radius-sm);
+  font-weight:700;
+  cursor:pointer;
+  transition:background .12s ease;
+}
+.file-btn:hover{background:#DCE9FB;}
+#count-badge{
+  font-weight:700;
+  color:var(--coral-deep);
+  font-size:15px;
+  background:#FFF1ED;
+  padding:8px 16px;
+  border-radius:999px;
+}
+
+/* Image grid */
+#box{
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(110px,1fr));
+  gap:16px;
+  margin-bottom:20px;
+}
 .square{
-border:2px solid #2A6FDB;
-height:130px;
-width:130px;
-background-color:white;
-background-size:cover;
-background-position:center;
-background-repeat:no-repeat;
-border-radius:8px;
-position:relative;
-cursor:pointer;
-box-shadow:0 3px 8px rgba(0,0,0,0.12);
-transition:transform .1s ease;
+  border:2px solid var(--blue);
+  aspect-ratio:1/1;
+  background-color:var(--white);
+  background-size:cover;
+  background-position:center;
+  background-repeat:no-repeat;
+  border-radius:var(--radius-sm);
+  position:relative;
+  cursor:pointer;
+  box-shadow:0 3px 8px rgba(0,0,0,0.10);
+  transition:transform .1s ease;
 }
 .square:hover{
-transform:translateY(-2px);
-box-shadow:0 5px 12px rgba(0,0,0,0.18);
+  transform:translateY(-2px);
+  box-shadow:0 5px 12px rgba(0,0,0,0.16);
 }
 .square .remove{
-position:absolute;
-top:-8px;
-right:-8px;
-width:22px;
-height:22px;
-border-radius:50%;
-background:red;
-color:white;
-border:2px solid white;
-font-weight:bold;
-font-size:12px;
-line-height:16px;
-cursor:pointer;
-display:none;
+  position:absolute;
+  top:-8px;
+  right:-8px;
+  width:22px;
+  height:22px;
+  border-radius:50%;
+  background:var(--coral);
+  color:var(--white);
+  border:2px solid var(--white);
+  font-weight:bold;
+  font-size:12px;
+  line-height:16px;
+  text-align:center;
+  cursor:pointer;
+  display:none;
 }
 .square:hover .remove{display:block;}
 
-#box{
-position:absolute;
-top:200px;
-right:210px;
-display:grid;
-gap:23px;
-grid-template-columns:repeat(6,110px);
-grid-auto-rows:110px;
-max-width:770px;
+/* Next CTA */
+.btn-primary{
+  display:block;
+  width:100%;
+  padding:16px;
+  border-radius:var(--radius-md);
+  border:none;
+  background:var(--coral);
+  color:var(--white);
+  font-family:'Baloo 2',sans-serif;
+  font-weight:700;
+  font-size:20px;
+  letter-spacing:.3px;
+  cursor:pointer;
+  transition:background .12s ease, transform .1s ease;
 }
-#next{
-position:absolute;
- width:280px;
- height:50px;
- border-radius:10px;
- border:1px solid;
- background-color:blue;
- border-color:green;
- font-weight:bold;
- color:white;
-top:490px;
-right:500px;
-font-size:28px;
-text-align:center;
-line-height:50px;
-text-decoration:none;
-display:inline-block;
- }
- #next:hover{
- border:1px solid;
- background-color:green;
- border-color:yellow;
- }
- h1{
- color:lightgreen;
- }
-#file{
-height:44px;
-padding:8px 10px;
-color:#2A6FDB;
-background-color:white;
-border:2px solid #2A6FDB;
-border-radius:10px;
-font-weight:bold;
-cursor:pointer;
-position:absolute;
-top:300px;
-left:365px;
+.btn-primary:hover{background:var(--coral-deep); transform:translateY(-1px);}
+
+/* Character pills */
+.char-row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:12px;
 }
-#count{
-color:green;
-position:absolute;
-top:200px;
-left:365px;
-font-size:25px;
-font-weight:bold;
+.char-pill{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:11px 18px;
+  background:var(--blue);
+  color:var(--white);
+  border-radius:999px;
+  font-weight:700;
+  font-size:14px;
+  text-decoration:none;
+  box-shadow:0 3px 8px rgba(0,0,0,0.10);
+  transition:transform .1s ease, background .12s ease;
 }
-#add1,#add2,#add3,#add4,#add5{
-display:inline-block;
-padding:10px 18px;
-background-color:#2A6FDB;
-color:white;
-border:2px solid #1b4fa0;
-border-radius:10px;
-font-weight:bold;
-text-decoration:none;
-text-align:center;
-box-shadow:0 3px 8px rgba(0,0,0,0.12);
-transition:transform .1s ease, background-color .15s ease;
+.char-pill:hover{background:var(--blue-deep); transform:translateY(-2px);}
+
+/* WhatsApp floating button */
+.whatsapp-fab{
+  position:fixed;
+  right:24px;
+  bottom:24px;
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  background:var(--whatsapp);
+  color:var(--white);
+  padding:14px 20px;
+  border-radius:999px;
+  font-weight:700;
+  font-size:15px;
+  text-decoration:none;
+  box-shadow:0 6px 16px rgba(37,211,102,0.4);
+  z-index:50;
+  transition:background .12s ease, transform .1s ease;
 }
-#add1:hover,#add2:hover,#add3:hover,#add4:hover,#add5:hover{
-background-color:#1b4fa0;
-transform:translateY(-2px);
+.whatsapp-fab:hover{background:var(--whatsapp-deep); transform:translateY(-2px);}
+
+/* ============ FOOTER ============ */
+footer{
+  margin-top:40px;
+  padding:36px 40px;
+  background:var(--ink);
+  color:#E7ECF2;
 }
-#add1{
-position:absolute;
-top:300px;
-left:635px;
+.footer-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:28px;
+  max-width:900px;
+  margin:0 auto;
 }
-#add2{
-position:absolute;
-top:300px;
-left:905px;
+.footer-col h3{
+  font-size:14px;
+  color:#9FB2C8;
+  margin-bottom:12px;
+  font-family:'Inter',sans-serif;
+  font-weight:700;
 }
-#add3{
-position:absolute;
-top:430px;
-left:365px;
+.footer-col ul{list-style:none;display:flex;flex-direction:column;gap:9px;}
+.footer-col a{
+  color:#E7ECF2;
+  font-size:14px;
+  text-decoration:none;
 }
-#add4{
-position:absolute;
-top:430px;
-left:635px;
+.footer-col a:hover{color:var(--coral);}
+.footer-bottom{
+  text-align:center;
+  margin-top:26px;
+  padding-top:18px;
+  border-top:1px solid rgba(255,255,255,0.1);
+  font-size:12px;
+  color:#8496A8;
 }
-#add5{
-position:absolute;
-top:430px;
-left:905px;
-}
- footer{position:relative;left:0;margin-top:60px;color:white;background-color:black;width:100%;min-height:100px;padding:20px 0;}
-	 nav ul,footer ul{
-	 list-style:none;
-	 display:flex;
-	 flex-wrap:wrap;
-	 flex-direction:row;
-	 gap:20px;
-	 
-	 }
-	 ul a{
-color:white;
-font-size:15px;
-	 }
-	 ul a:hover{
-	 color:skyblue;
-	 }
+
 /* ================= PHONE ================= */
 @media (max-width: 760px) {
-
-  * {
-    box-sizing: border-box;
+  .topbar{
+    flex-direction:column;
+    align-items:flex-start;
+    gap:10px;
+    padding:22px 18px 4px;
   }
-
-  body {
-    min-width: 0;
-    overflow-x: hidden;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 20px 16px 40px;
-    gap: 14px;
+  .layout{
+    flex-direction:column;
+    padding:12px 18px 20px;
   }
-
-  h1 { text-align: center; }
-  body > a[href="premium"] { align-self: center; }
-
-  #myBooksPanel {
-    position: static;
-    width: 100%;
-    max-width: 420px;
+  #myBooksPanel{
+    width:100%;
+    position:static;
   }
-
-  #cointener {
-    margin-left: 0;
-    padding-bottom: 0;
-    width: 100%;
-    max-width: 420px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 14px;
-  }
-
-  #promp {
-    position: static;
-    width: 100%;
-    height: 70px;
-  }
-
-  #canvas {
-    position: static;
-    width: 100%;
-    height: auto;
-    aspect-ratio: 700 / 450;
-  }
-
-  #box {
-    position: static;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-    width: 100%;
-    max-width: none;
-  }
-
-  .square {
-    width: 100%;
-    height: auto;
-    aspect-ratio: 1 / 1;
-  }
-
-  #next {
-    position: static;
-    width: 100%;
-    max-width: 420px;
-  }
-
-  #count {
-    position: static;
-    width: 100%;
-    max-width: 420px;
-    text-align: center;
-  }
-
-  #file {
-    position: static;
-    width: 100%;
-    max-width: 420px;
-  }
-
-  #add1, #add2, #add3, #add4, #add5 {
-    position: static;
-    display: block;
-    width: 100%;
-    max-width: 420px;
-    text-align: center;
-    background: #2A6FDB;
-    color: white;
-    padding: 12px;
-    border-radius: 10px;
-    text-decoration: none;
-    font-weight: bold;
-  }
-
-  footer {
-    position: static;
-    width: 100%;
-    height: auto;
-    margin-top: 20px;
-    padding: 16px 12px;
-  }
-
-  footer ul {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: center;
-    text-align: center;
-    gap: 14px;
-  }
+  #box{grid-template-columns:repeat(3, 1fr);}
+  .char-row{flex-direction:column;}
+  .char-pill{justify-content:center;}
+  .whatsapp-fab{right:16px; bottom:16px; padding:12px 16px; font-size:14px;}
+  footer{padding:28px 18px;}
+  .footer-grid{grid-template-columns:1fr; gap:22px;}
 }
-
 
 </style>
 </head>
 <body>
-<h1>Short Book</h1>
-<a href ="premium">premium</a>
-<aside id="myBooksPanel">
-  <h2>📚 Your Books</h2>
-  <div id="myBooksList"></div>
-  <a href="shop.html" id="moreBooksBtn">More ➜</a>
-</aside>
-<div id="cointener">
-<div id="promp" placeholder ="Write a promp.write your story" ></div><br>
-<div id ="canvas"></div>
-  <section id ="box">
-   </section>
-   <button id ="next">NEXT</button>
-   </div>
-   <div id ="cointener">
-   <div id ="count">0</div>
-   <input type ="file" id ="file" accept="image/*" multiple></input>
-   </div>
-  
-   <a href ="https://www.freeartgen.com/" id ="add1">AI character</a>
-  <a href ="https://pixabay.com/" id ="add2">Manga character</a>
-  <a href ="https://www.magnific.com/free-vector/hand-drawn-frailejon-character-illustration_36186900.htm#fromView=search&page=1&position=5&uuid=2607fac7-ecc1-4ae1-967d-cfa363f838b8&track=ais_hybrid&query=funny+cartoon"
-  <a href="" id ="add3">cartoon character</a>
-  <a href="comic-strip-studio.html" id ="add4">Draw Cartoon</a>
-  <a href ="" id ="add5">chibi</a>
-  
-   <footer>
-	 <nav>
-	 <ul>
-	 <a href ="page1.html" >Home page</a>
-	 <a href ="comic-strip-studio.html" >draw page</a>
-	 <a href ="https://www.freeartgen.com/" >AI Generator</a>
-	 <a href ="https://www.magnific.com/free-vector/hand-drawn-frailejon-character-illustration_36186900.htm#fromView=search&page=1&position=5&uuid=2607fac7-ecc1-4ae1-967d-cfa363f838b8&track=ais_hybrid&query=funny+cartoon"
-     >cartoon character</a>
-	 <a href ="https://pixabay.com/" >manga Generator</a>
-	 <a href ="" >chibi Generator</a>
-	 <a href ="" >Edit page</a>
-	 <a href ="" >display page</a>
-	 <a href ="panels.html" >panel page</a>
-	 <a href ="panels-view.html" >panel page</a>
-	 <a href ="about.html" >about</a>
-	 <a href ="policy.html" >policy</a>
-	 <a href ="" >Contact</a>
-	 <a href ="" >infomation</a>
-	 </ul>
-	 </nav>
-	 </footer>
-	 <div id ="put"></div>
 
+<div class="topbar">
+  <div class="brand">
+    <h1>Short Book</h1>
+    <span>create your own picture story</span>
+  </div>
+  <a href="premium" class="premium-badge">✨ Premium</a>
+</div>
 
-  <script>
-  const fileInput = document.getElementById("file");
-  const box = document.getElementById("box");
-  const count = document.getElementById("count");
-  const next = document.getElementById("next");
+<div class="layout">
 
-  // Shared storage that survives navigation to another page even when these
-  // files are opened directly from disk (file://), where plain localStorage
-  // is siloed per-file and won't carry data from page1 to page2.
-  const Store = {
-    _read(){ try{ return JSON.parse(window.name || "{}"); }catch(e){ return {}; } },
-    get(key){
-      const v = this._read()[key];
-      if(v !== undefined) return v;
-      try{ return JSON.parse(localStorage.getItem(key)); }catch(e){ return null; }
-    },
-    set(key, value){
-      const data = this._read();
-      data[key] = value;
-      window.name = JSON.stringify(data);
-      try{ localStorage.setItem(key, JSON.stringify(value)); }catch(e){}
-    }
-  };
+  <aside id="myBooksPanel">
+    <h2>📚 Your Books</h2>
+    <div id="myBooksList"></div>
+    <a href="shop.html" id="moreBooksBtn">More ➜</a>
+  </aside>
 
-  // keep any images already saved (e.g. coming back from page2)
-  let store = Store.get("store") || [];
+  <main class="main">
 
-  function renderSquares(){
-    box.innerHTML = "";
-    store.forEach((dataUrl, i)=>{
-      const sq = document.createElement("div");
-      sq.className = "square";
-      sq.style.backgroundImage = `url("${dataUrl}")`;
+    <section class="card">
+      <h2>Write your story</h2>
+      <textarea id="promp" placeholder="Write a prompt, write your story..."></textarea>
+      <div id="canvas"></div>
+    </section>
 
-      const remove = document.createElement("div");
-      remove.className = "remove";
-      remove.textContent = "x";
-      remove.title = "Remove this image";
-      remove.addEventListener("click",(e)=>{
-        e.stopPropagation();
-        store.splice(i,1);
+    <section class="card">
+      <h2>Upload characters</h2>
+      <div class="upload-row">
+        <label for="file" class="file-btn">📁 Choose images</label>
+        <input type="file" id="file" accept="image/*" multiple hidden>
+        <div id="count-badge">Images: <span id="count">0</span></div>
+      </div>
+      <section id="box"></section>
+      <button id="next" class="btn-primary">NEXT →</button>
+    </section>
+
+    <section class="card">
+      <h2>Add a character</h2>
+      <div class="char-row">
+        <a href="https://www.freeartgen.com/" id="add1" class="char-pill" target="_blank" rel="noopener">🤖 AI character</a>
+        <a href="https://pixabay.com/" id="add2" class="char-pill" target="_blank" rel="noopener">🎎 Manga character</a>
+        <a href="#" id="add3" class="char-pill">🖍️ Cartoon character</a>
+        <a href="comic-strip-studio.html" id="add4" class="char-pill">✏️ Draw cartoon</a>
+        <a href="#" id="add5" class="char-pill">🐣 Chibi</a>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<a class="whatsapp-fab" href="https://wa.me/27643471665" target="_blank" rel="noopener">💬 Chat on WhatsApp</a>
+
+<footer>
+  <div class="footer-grid">
+    <div class="footer-col">
+      <h3>Create</h3>
+      <ul>
+        <li><a href="page1.html">Home page</a></li>
+        <li><a href="comic-strip-studio.html">Draw page</a></li>
+        <li><a href="panels.html">Panel page</a></li>
+        <li><a href="panels-view.html">Panel viewer</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h3>Generators</h3>
+      <ul>
+        <li><a href="https://www.freeartgen.com/" target="_blank" rel="noopener">AI Generator</a></li>
+        <li><a href="https://pixabay.com/" target="_blank" rel="noopener">Manga Generator</a></li>
+        <li><a href="#">Cartoon Generator</a></li>
+        <li><a href="#">Chibi Generator</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h3>More</h3>
+      <ul>
+        <li><a href="about.html">About</a></li>
+        <li><a href="policy.html">Policy</a></li>
+        <li><a href="https://wa.me/27643471665" target="_blank" rel="noopener">Contact / WhatsApp</a></li>
+        <li><a href="#">Information</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">© Short Book</div>
+</footer>
+
+<script>
+const fileInput = document.getElementById("file");
+const box = document.getElementById("box");
+const count = document.getElementById("count");
+const next = document.getElementById("next");
+
+// Shared storage that survives navigation to another page even when these
+// files are opened directly from disk (file://), where plain localStorage
+// is siloed per-file and won't carry data from page1 to page2.
+const Store = {
+  _read(){ try{ return JSON.parse(window.name || "{}"); }catch(e){ return {}; } },
+  get(key){
+    const v = this._read()[key];
+    if(v !== undefined) return v;
+    try{ return JSON.parse(localStorage.getItem(key)); }catch(e){ return null; }
+  },
+  set(key, value){
+    const data = this._read();
+    data[key] = value;
+    window.name = JSON.stringify(data);
+    try{ localStorage.setItem(key, JSON.stringify(value)); }catch(e){}
+  }
+};
+
+// keep any images already saved (e.g. coming back from page2)
+let store = Store.get("store") || [];
+
+function renderSquares(){
+  box.innerHTML = "";
+  store.forEach((dataUrl, i)=>{
+    const sq = document.createElement("div");
+    sq.className = "square";
+    sq.style.backgroundImage = `url("${dataUrl}")`;
+
+    const remove = document.createElement("div");
+    remove.className = "remove";
+    remove.textContent = "x";
+    remove.title = "Remove this image";
+    remove.addEventListener("click",(e)=>{
+      e.stopPropagation();
+      store.splice(i,1);
+      renderSquares();
+    });
+
+    sq.appendChild(remove);
+    box.appendChild(sq);
+  });
+  count.textContent = `${store.length}`;
+}
+
+function addFiles(fileList){
+  const files = Array.from(fileList);
+  let remaining = files.length;
+  if(!remaining) return;
+  files.forEach(file=>{
+    const reader = new FileReader();
+    reader.onload = () => {
+      store.push(reader.result); // base64 string
+      remaining--;
+      if(remaining === 0){
+        Store.set("store", store);
         renderSquares();
-      });
-
-      sq.appendChild(remove);
-      box.appendChild(sq);
-    });
-    count.textContent = `${store.length}`;
-  }
-
-  function addFiles(fileList){
-    const files = Array.from(fileList);
-    let remaining = files.length;
-    if(!remaining) return;
-    files.forEach(file=>{
-      const reader = new FileReader();
-      reader.onload = () => {
-        store.push(reader.result); // base64 string
-        remaining--;
-        if(remaining === 0){
-          Store.set("store", store);
-          renderSquares();
-        }
-      };
-      reader.readAsDataURL(file);
-    });
-  }
-
-  fileInput.addEventListener("change", ()=>{
-    addFiles(fileInput.files);
-    fileInput.value = ""; // lets the same file be picked again later
+      }
+    };
+    reader.readAsDataURL(file);
   });
+}
 
-  next.addEventListener("click", ()=>{
-    if(store.length === 0){
-      alert("Add at least one picture first.");
-      return;
-    }
-    Store.set("store", store);
-    window.location.href = "page2.html";
+fileInput.addEventListener("change", ()=>{
+  addFiles(fileInput.files);
+  fileInput.value = ""; // lets the same file be picked again later
+});
+
+next.addEventListener("click", ()=>{
+  if(store.length === 0){
+    alert("Add at least one picture first.");
+    return;
+  }
+  Store.set("store", store);
+  window.location.href = "page2.html";
+});
+
+renderSquares();
+
+// ---------------------------------------------------------------
+// "Your Books" - shows up to 6 stories pushed to the shop by
+// control.html. This page only reads the catalog, never writes it.
+// ---------------------------------------------------------------
+async function fetchBooks(){
+  try{
+    const res = await fetch("/api/books");
+    if(!res.ok) return [];
+    return await res.json();
+  }catch(e){ console.error(e); return []; }
+}
+
+async function renderMyBooks(){
+  const list = document.getElementById("myBooksList");
+  if(!list) return;
+  const books = (await fetchBooks()).slice(0, 6); // server already returns newest first
+  if(!books.length){
+    list.innerHTML = '<div class="noBooksMsg">No stories yet - start writing and they\'ll show up here!</div>';
+    return;
+  }
+  list.innerHTML = "";
+  books.forEach(book=>{
+    const a = document.createElement("a");
+    a.className = "bookThumb";
+    a.href = `index.html?book=${encodeURIComponent(book._id)}`;
+
+    const img = document.createElement("img");
+    img.src = book.cover || "";
+    a.appendChild(img);
+
+    const span = document.createElement("span");
+    span.textContent = book.title || "Untitled";
+    a.appendChild(span);
+
+    list.appendChild(a);
   });
-
-  renderSquares();
-
-  // ---------------------------------------------------------------
-  // "Your Books" - shows up to 6 stories pushed to the shop by
-  // control.html. This page only reads the catalog, never writes it.
-  // ---------------------------------------------------------------
-  async function fetchBooks(){
-    try{
-      const res = await fetch("/api/books");
-      if(!res.ok) return [];
-      return await res.json();
-    }catch(e){ console.error(e); return []; }
-  }
-
-  async function renderMyBooks(){
-    const list = document.getElementById("myBooksList");
-    if(!list) return;
-    const books = (await fetchBooks()).slice(0, 6); // server already returns newest first
-    if(!books.length){
-      list.innerHTML = '<div class="noBooksMsg">No stories yet - start writing and they\'ll show up here!</div>';
-      return;
-    }
-    list.innerHTML = "";
-    books.forEach(book=>{
-      const a = document.createElement("a");
-      a.className = "bookThumb";
-      a.href = `index.html?book=${encodeURIComponent(book._id)}`;
-
-      const img = document.createElement("img");
-      img.src = book.cover || "";
-      a.appendChild(img);
-
-      const span = document.createElement("span");
-      span.textContent = book.title || "Untitled";
-      a.appendChild(span);
-
-      list.appendChild(a);
-    });
-  }
-  renderMyBooks();
-  </script>
+}
+renderMyBooks();
+</script>
 </body>
 </html>
