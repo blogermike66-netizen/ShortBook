@@ -403,7 +403,6 @@
         <li><a href="comic-strip-studio.html">draw page</a></li>
         <li><a href="about.html">about</a></li>
         <li><a href="policy.html">policy</a></li>
-        <li><a href="info.html">information</a></li>
       </ul>
     </nav>
   </footer>
@@ -739,51 +738,100 @@
 
   const chooseText  = "Here are all the stories. Slide the bubbles left and right with the big round arrows, and hover over one to hear its name. The green ring shows how far you have already read, so you can carry on right where you stopped. And keep an eye on the last bubble, because a brand new story is coming this week. Now, choose a story, and let us begin.";
 
-  function speak(text){
-    if(!("speechSynthesis" in window)) return;
-    const speech = new SpeechSynthesisUtterance(text);
-    speech.rate = 0.9;
-    speech.pitch = 1.1;
-    speech.volume = 1;
+  // Server-generated narration instead of the browser's built-in
+  // speechSynthesis. This fixes voices sounding different (or missing
+  // entirely) on different devices - every visitor hears the exact same
+  // recording, generated once on the server and cached after that.
+  let currentAudio = null;
+  async function speak(text, onDone){
+    try{
+      const res = await fetch("/api/narrate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text, lang: "en" }),
+      });
+      if(!res.ok) throw new Error("narrate request failed");
+      const { audioUrl } = await res.json();
 
-    const voices  = speechSynthesis.getVoices();
-    const ava     = voices.find(v => v.name.toLowerCase().includes("ava"));
-    const william = voices.find(v => v.name.toLowerCase().includes("william"));
+      if(currentAudio){ currentAudio.pause(); }
+      const audio = new Audio(audioUrl);
+      currentAudio = audio;
 
-    // Ava/William are premium voices that only exist on some devices. If
-    // neither is installed (most phones/other computers), don't silently
-    // fall through to the browser's absolute default voice - that default
-    // is often a low-quality/robotic one. Instead pick any other English
-    // voice on the device, which sounds far closer to what was intended.
-    let chosen = (ava && william) ? (Math.random() < 0.5 ? ava : william) : (ava || william);
-    if(!chosen){
-      const english = voices.filter(v => v.lang && v.lang.toLowerCase().startsWith("en"));
-      chosen = english[Math.floor(Math.random() * english.length)] || voices[0];
+      audio.addEventListener("play", ()=> Music.duck(true));
+      audio.addEventListener("ended", ()=>{
+        Music.duck(false);
+        if(onDone) onDone();
+      });
+      audio.addEventListener("error", ()=> Music.duck(false));
+
+      await audio.play();
+    }catch(err){
+      console.error("Narration failed:", err);
+      if(onDone) onDone(); // don't block the email prompt just because audio failed
     }
-    if(chosen) speech.voice = chosen;
-
-    speech.onstart = ()=> Music.duck(true);    // music steps back
-    speech.onend   = ()=> Music.duck(false);   // music comes back up
-    speech.onerror = ()=> Music.duck(false);
-
-    speechSynthesis.cancel();
-    speechSynthesis.speak(speech);
   }
 
   startBtn.addEventListener("click", ()=>{
     intro.classList.add("hide");
-    Music.start();        // the click is the gesture browsers wait for
-    speak(chooseText);    // second, different speech: "choose a story"
+    Music.start();                          // the click is the gesture browsers wait for
+    speak(chooseText, showEmailSignup);     // once this finishes, prompt for email
   });
 
   // first speech, on the splash itself
   window.addEventListener("load", ()=>{
-    if(speechSynthesis.getVoices().length > 0){
-      speak(welcomeText);
-    }else{
-      speechSynthesis.addEventListener("voiceschanged", ()=> speak(welcomeText), { once:true });
-    }
+    speak(welcomeText);
   });
+
+  // ---------------------------------------------------------------
+  // EMAIL SIGNUP - shown once, right after the "choose a story" line
+  // finishes playing. Subscribers get an email whenever a new story
+  // is published.
+  // ---------------------------------------------------------------
+  function showEmailSignup(){
+    if(document.getElementById("emailSignup")) return; // already shown once
+    const modal = document.createElement("div");
+    modal.id = "emailSignup";
+    modal.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:999;";
+    modal.innerHTML = `
+      <div style="background:#fff;border-radius:16px;padding:28px 24px;max-width:340px;width:90%;text-align:center;font-family:inherit;">
+        <div style="font-size:32px;">📬</div>
+        <h3 style="margin:8px 0;">Want to know when a new story drops?</h3>
+        <p style="color:#666;font-size:14px;margin-bottom:16px;">Leave your email and we'll let you know every time a new story is published.</p>
+        <input id="emailSignupInput" type="email" placeholder="you@example.com"
+          style="width:100%;padding:10px;border:1px solid #ccc;border-radius:8px;margin-bottom:10px;box-sizing:border-box;">
+        <div id="emailSignupError" style="color:#c0392b;font-size:13px;min-height:18px;"></div>
+        <button id="emailSignupSubmit" style="width:100%;padding:10px;border:none;border-radius:8px;background:#2e7d32;color:#fff;font-weight:700;margin-top:4px;cursor:pointer;">Notify me</button>
+        <button id="emailSignupSkip" style="width:100%;padding:8px;border:none;background:transparent;color:#888;margin-top:6px;cursor:pointer;">Not now</button>
+      </div>`;
+    document.body.appendChild(modal);
+
+    document.getElementById("emailSignupSkip").addEventListener("click", ()=> modal.remove());
+
+    document.getElementById("emailSignupSubmit").addEventListener("click", async ()=>{
+      const input = document.getElementById("emailSignupInput");
+      const errorEl = document.getElementById("emailSignupError");
+      const email = input.value.trim();
+      try{
+        const res = await fetch("/api/subscribe", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email }),
+        });
+        if(!res.ok){
+          const data = await res.json().catch(()=>({}));
+          errorEl.textContent = data.error || "Something went wrong - try again.";
+          return;
+        }
+        modal.innerHTML = `<div style="background:#fff;border-radius:16px;padding:32px 24px;max-width:340px;width:90%;text-align:center;">
+          <div style="font-size:32px;">✅</div>
+          <p style="margin-top:10px;">You're on the list - we'll email you when a new story is up.</p>
+        </div>`;
+        setTimeout(()=> modal.remove(), 1800);
+      }catch(err){
+        errorEl.textContent = "Couldn't reach the server - try again.";
+      }
+    });
+  }
 
   renderShop();
   </script>
